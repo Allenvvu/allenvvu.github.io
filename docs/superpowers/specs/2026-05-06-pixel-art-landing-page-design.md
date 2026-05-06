@@ -90,7 +90,7 @@ IDLE (0.5–2s random) → PICK_TARGET (random tile in room bounds) → WALK →
 - **Walk speed:** 1 tile per 400ms (leisurely studio pace)
 - **Room bounds:** NPCs stay within the inner tile area, avoiding the wall strip and furniture zones
 - **Y-sort:** All NPCs are sorted by their Y position before each draw call so closer NPCs render on top of farther ones (depth illusion)
-- **Frame animation:** Driven by a shared `lastFrameTime` accumulator; advances every 150ms while walking, holds frame 0 while idle
+- **Frame animation:** Each NPC tracks its own `frameTimer` accumulator; advances every 150ms while walking, holds frame 0 while idle
 
 ---
 
