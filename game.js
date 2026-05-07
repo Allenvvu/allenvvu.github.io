@@ -110,6 +110,54 @@ function drawFurniture() {
   }
 }
 
+// ── NPC system ────────────────────────────────────────────────────────────────
+
+// Walkable bounds (tile coords, inclusive)
+const NPC_MIN_COL = 2;
+const NPC_MAX_COL = ROOM_COLS - 3;
+const NPC_MIN_ROW = WALL_ROWS + 1;
+const NPC_MAX_ROW = ROOM_ROWS - 2;
+
+const STATE = { IDLE: 'idle', WALKING: 'walking' };
+
+// Sprite sheet row per direction
+const DIR = { DOWN: 0, UP: 1, LEFT: 2, RIGHT: 3 };
+
+// Walk animation: 4-step cycle 0→1→2→1 using a cycleIndex (0–3)
+const WALK_CYCLE = [0, 1, 2, 1];
+
+function createNPC(spriteKey, startCol, startRow) {
+  return {
+    spriteKey,
+    x: startCol * TS,    // pixel X within room (local space)
+    y: startRow * TS,    // pixel Y within room (local space)
+    dir: DIR.DOWN,
+    cycleIndex: 0,       // index into WALK_CYCLE
+    frame: 0,            // current sprite sheet column = WALK_CYCLE[cycleIndex]
+    frameTimer: 0,       // ms since last frame advance
+    state: STATE.IDLE,
+    idleTimer: Math.random() * 1500 + 500,
+    targetX: startCol * TS,
+    targetY: startRow * TS,
+  };
+}
+
+function sortByY(npcs) {
+  return [...npcs].sort((a, b) => a.y - b.y);
+}
+
+function clampNPCPos(px, py) {
+  return {
+    x: clamp(px, NPC_MIN_COL * TS, NPC_MAX_COL * TS),
+    y: clamp(py, NPC_MIN_ROW * TS, NPC_MAX_ROW * TS),
+  };
+}
+
+window.GameUtils = Object.assign(window.GameUtils, {
+  createNPC, sortByY, clampNPCPos, WALK_CYCLE,
+  STATE, DIR, NPC_MIN_COL, NPC_MAX_COL, NPC_MIN_ROW, NPC_MAX_ROW,
+});
+
 // ── Sprite loader ─────────────────────────────────────────────────────────────
 
 const SPRITE_PATHS = {

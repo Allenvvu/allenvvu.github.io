@@ -54,6 +54,42 @@ assert('clamp above max', G.clamp(15, 0, 10), 10);
 assert('clamp at min boundary', G.clamp(0, 0, 10), 0);
 assert('clamp at max boundary', G.clamp(10, 0, 10), 10);
 
+const G2 = window.GameUtils;
+
+// ── createNPC ────────────────────────────────────────────────────────────────
+const npc = G2.createNPC('npc1', 5, 6);
+assert('createNPC x from tileCol',   npc.x,     5 * G2.TS);
+assert('createNPC y from tileRow',   npc.y,     6 * G2.TS);
+assert('createNPC state is IDLE',    npc.state, G2.STATE.IDLE);
+assert('createNPC dir is DOWN',      npc.dir,   G2.DIR.DOWN);
+assert('createNPC frame starts at 0', npc.frame, 0);
+assert('createNPC cycleIndex starts at 0', npc.cycleIndex, 0);
+
+// ── sortByY ──────────────────────────────────────────────────────────────────
+const na = { y: 100 }, nb = { y: 50 }, nc = { y: 200 };
+assert('sortByY ascending order',
+  G2.sortByY([na, nb, nc]).map(n => n.y), [50, 100, 200]);
+assert('sortByY does not mutate input', [na, nb, nc][0].y, 100);
+
+// ── clampNPCPos ───────────────────────────────────────────────────────────────
+assert('clampNPCPos mid unchanged',
+  G2.clampNPCPos(10 * G2.TS, 8 * G2.TS), { x: 10 * G2.TS, y: 8 * G2.TS });
+assert('clampNPCPos clamps left',
+  G2.clampNPCPos(0, 8 * G2.TS), { x: G2.NPC_MIN_COL * G2.TS, y: 8 * G2.TS });
+assert('clampNPCPos clamps right',
+  G2.clampNPCPos(9999, 8 * G2.TS), { x: G2.NPC_MAX_COL * G2.TS, y: 8 * G2.TS });
+assert('clampNPCPos clamps top',
+  G2.clampNPCPos(10 * G2.TS, 0), { x: 10 * G2.TS, y: G2.NPC_MIN_ROW * G2.TS });
+assert('clampNPCPos clamps bottom',
+  G2.clampNPCPos(10 * G2.TS, 9999), { x: 10 * G2.TS, y: G2.NPC_MAX_ROW * G2.TS });
+
+// ── WALK_CYCLE ────────────────────────────────────────────────────────────────
+assert('WALK_CYCLE has 4 steps',   G2.WALK_CYCLE.length, 4);
+assert('WALK_CYCLE step 0 is 0',   G2.WALK_CYCLE[0], 0);
+assert('WALK_CYCLE step 1 is 1',   G2.WALK_CYCLE[1], 1);
+assert('WALK_CYCLE step 2 is 2',   G2.WALK_CYCLE[2], 2);
+assert('WALK_CYCLE step 3 is 1',   G2.WALK_CYCLE[3], 1);
+
 document.getElementById('summary').textContent =
   passed + ' passed, ' + failed + ' failed';
 document.getElementById('summary').style.color = failed === 0 ? '#2ecc71' : '#e74c3c';
