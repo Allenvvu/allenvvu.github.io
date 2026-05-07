@@ -29,3 +29,60 @@ function clamp(val, min, max) {
 }
 
 window.GameUtils = { tileToPixel, roomOffset, clamp, TILE, SCALE, TS, ROOM_COLS, ROOM_ROWS, WALL_ROWS };
+
+// ── Canvas setup ─────────────────────────────────────────────────────────────
+
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+ctx.imageSmoothingEnabled = false;
+
+let roomX = 0, roomY = 0;
+
+function resize() {
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  ctx.imageSmoothingEnabled = false; // reapply after resize clears it
+  const off = roomOffset(canvas.width, canvas.height);
+  roomX = off.x;
+  roomY = off.y;
+}
+
+window.addEventListener('resize', resize);
+resize();
+
+// ── Colors ───────────────────────────────────────────────────────────────────
+
+const COLORS = {
+  page:       '#0d0d1a',
+  floorA:     '#7a4f2e',
+  floorB:     '#6b4226',
+  wall:       '#2a1f3d',
+  wallAccent: '#3d2f5a',
+};
+
+// ── Room renderer ─────────────────────────────────────────────────────────────
+
+function drawRoom() {
+  // Page background
+  ctx.fillStyle = COLORS.page;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Floor tiles (rows WALL_ROWS to ROOM_ROWS-1)
+  for (let row = WALL_ROWS; row < ROOM_ROWS; row++) {
+    for (let col = 0; col < ROOM_COLS; col++) {
+      ctx.fillStyle = (col + row) % 2 === 0 ? COLORS.floorA : COLORS.floorB;
+      ctx.fillRect(roomX + col * TS, roomY + row * TS, TS, TS);
+    }
+  }
+
+  // Wall strip
+  ctx.fillStyle = COLORS.wall;
+  ctx.fillRect(roomX, roomY, ROOM_COLS * TS, WALL_ROWS * TS);
+
+  // Baseboard accent line at bottom of wall
+  ctx.fillStyle = COLORS.wallAccent;
+  ctx.fillRect(roomX, roomY + WALL_ROWS * TS - 3, ROOM_COLS * TS, 3);
+}
+
+// Temporary bootstrap — replaced in Task 9
+drawRoom();
