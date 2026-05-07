@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Allen — Portfolio</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0d0d1a; overflow: hidden; }
+    canvas { display: block; }
+    #overlay {
+      position: fixed;
+      bottom: 48px;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      pointer-events: none;
+      font-family: 'Courier New', monospace;
+    }
+    #overlay .name {
+      display: inline-block;
+      background: rgba(0,0,0,0.65);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #ffffff;
+      font-size: 18px;
+      letter-spacing: 4px;
+      padding: 6px 20px;
+      text-transform: uppercase;
+    }
+    #overlay .title {
+      display: block;
+      background: rgba(0,0,0,0.5);
+      color: rgba(255,255,255,0.6);
+      font-size: 11px;
+      letter-spacing: 2px;
+      padding: 3px 12px;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="game"></canvas>
+  <div id="overlay">
+    <div class="name">Allen</div>
+    <span class="title">Developer &amp; Designer</span>
+  </div>
+  <script src="game.js"></script>
+</body>
+</html>
