@@ -215,6 +215,28 @@ window.GameUtils = Object.assign(window.GameUtils, {
   updateNPC, pickTarget, NPC_SPEED, FRAME_INTERVAL,
 });
 
+// ── NPC instances ─────────────────────────────────────────────────────────────
+
+const NPCS = [
+  createNPC('npc1', 8,  NPC_MIN_ROW + 1),
+  createNPC('npc2', 14, NPC_MIN_ROW + 3),
+  createNPC('npc3', 19, NPC_MIN_ROW + 5),
+];
+
+// ── NPC renderer ─────────────────────────────────────────────────────────────
+
+function drawNPCs() {
+  for (const npc of sortByY(NPCS)) {
+    const img = sprites[npc.spriteKey];
+    if (!img) continue;
+    ctx.drawImage(
+      img,
+      npc.frame * TILE, npc.dir * TILE, TILE, TILE,  // source rect in sprite sheet
+      roomX + npc.x,    roomY + npc.y,  TS,   TS     // dest rect on canvas
+    );
+  }
+}
+
 // ── Sprite loader ─────────────────────────────────────────────────────────────
 
 const SPRITE_PATHS = {
@@ -243,5 +265,5 @@ function loadSprites() {
 }
 
 loadSprites()
-  .then(() => { drawRoom(); drawFurniture(); })
+  .then(() => { drawRoom(); drawFurniture(); drawNPCs(); })
   .catch(err => console.error(err));
