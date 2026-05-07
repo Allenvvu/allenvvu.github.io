@@ -136,6 +136,17 @@ window.GameUtils.updateNPC(npcD, 20); // pushes frameTimer to 160 > 150
 assert('Frame advances after FRAME_INTERVAL', npcD.cycleIndex, 1);
 assert('Frame value matches WALK_CYCLE[1]',   npcD.frame, WC[1]);
 
+// ── Direction mapping to MetroCity ────────────────────────────────────────
+const G3 = window.GameUtils;
+assert('getMetroCityDirIndex DOWN → 0',
+  G3.getMetroCityDirIndex(G3.DIR.DOWN), 0);
+assert('getMetroCityDirIndex RIGHT → 1',
+  G3.getMetroCityDirIndex(G3.DIR.RIGHT), 1);
+assert('getMetroCityDirIndex UP → 2',
+  G3.getMetroCityDirIndex(G3.DIR.UP), 2);
+assert('getMetroCityDirIndex LEFT → 3',
+  G3.getMetroCityDirIndex(G3.DIR.LEFT), 3);
+
 document.getElementById('summary').textContent =
   passed + ' passed, ' + failed + ' failed';
 document.getElementById('summary').style.color = failed === 0 ? '#2ecc71' : '#e74c3c';

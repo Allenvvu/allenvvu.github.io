@@ -211,8 +211,18 @@ function updateNPC(npc, dt) {
   }
 }
 
+function getMetroCityDirIndex(gameDir) {
+  const map = {
+    [DIR.DOWN]:  0,  // MetroCity: forward (cols 0-5)
+    [DIR.RIGHT]: 1,  // MetroCity: right (cols 6-11)
+    [DIR.UP]:    2,  // MetroCity: backward (cols 12-17)
+    [DIR.LEFT]:  3,  // MetroCity: left (cols 18-23)
+  };
+  return map[gameDir];
+}
+
 window.GameUtils = Object.assign(window.GameUtils, {
-  updateNPC, pickTarget, NPC_SPEED, FRAME_INTERVAL,
+  updateNPC, pickTarget, NPC_SPEED, FRAME_INTERVAL, getMetroCityDirIndex,
 });
 
 // ── NPC instances ─────────────────────────────────────────────────────────────
