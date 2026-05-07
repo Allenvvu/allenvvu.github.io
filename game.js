@@ -123,8 +123,8 @@ const STATE = { IDLE: 'idle', WALKING: 'walking' };
 // Sprite sheet row per direction
 const DIR = { DOWN: 0, UP: 1, LEFT: 2, RIGHT: 3 };
 
-// Walk animation: 4-step cycle 0→1→2→1 using a cycleIndex (0–3)
-const WALK_CYCLE = [0, 1, 2, 1];
+// Walk animation: 6-step cycle 0→1→2→3→4→5 using a cycleIndex (0–5)
+const WALK_CYCLE = [0, 1, 2, 3, 4, 5];
 
 function createNPC(spriteKey, startCol, startRow) {
   return {

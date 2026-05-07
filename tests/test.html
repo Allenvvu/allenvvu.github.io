@@ -85,11 +85,13 @@ assert('clampNPCPos clamps bottom',
   G2.clampNPCPos(10 * G2.TS, 9999), { x: 10 * G2.TS, y: G2.NPC_MAX_ROW * G2.TS });
 
 // ── WALK_CYCLE ────────────────────────────────────────────────────────────────
-assert('WALK_CYCLE has 4 steps',   G2.WALK_CYCLE.length, 4);
+assert('WALK_CYCLE has 6 steps',   G2.WALK_CYCLE.length, 6);
 assert('WALK_CYCLE step 0 is 0',   G2.WALK_CYCLE[0], 0);
 assert('WALK_CYCLE step 1 is 1',   G2.WALK_CYCLE[1], 1);
 assert('WALK_CYCLE step 2 is 2',   G2.WALK_CYCLE[2], 2);
-assert('WALK_CYCLE step 3 is 1',   G2.WALK_CYCLE[3], 1);
+assert('WALK_CYCLE step 3 is 3',   G2.WALK_CYCLE[3], 3);
+assert('WALK_CYCLE step 4 is 4',   G2.WALK_CYCLE[4], 4);
+assert('WALK_CYCLE step 5 is 5',   G2.WALK_CYCLE[5], 5);
 
 const { updateNPC, STATE: ST, DIR: DR, NPC_SPEED: SPD, TS: TS3, WALK_CYCLE: WC } = window.GameUtils;
 
