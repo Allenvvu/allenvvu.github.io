@@ -264,6 +264,37 @@ function loadSprites() {
   );
 }
 
+// ── Vignette ──────────────────────────────────────────────────────────────────
+
+function drawVignette() {
+  const cx = canvas.width  / 2;
+  const cy = canvas.height / 2;
+  const r  = Math.max(canvas.width, canvas.height) * 0.75;
+  const grad = ctx.createRadialGradient(cx, cy, r * 0.2, cx, cy, r);
+  grad.addColorStop(0, 'rgba(0,0,0,0)');
+  grad.addColorStop(1, 'rgba(0,0,0,0.72)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+// ── Game loop ─────────────────────────────────────────────────────────────────
+
+let lastTime = 0;
+
+function gameLoop(timestamp) {
+  const dt = Math.min(timestamp - lastTime, 100); // cap at 100ms (tab unfocus protection)
+  lastTime = timestamp;
+
+  for (const npc of NPCS) updateNPC(npc, dt);
+
+  drawRoom();
+  drawFurniture();
+  drawNPCs();
+  drawVignette();
+
+  requestAnimationFrame(gameLoop);
+}
+
 loadSprites()
-  .then(() => { drawRoom(); drawFurniture(); drawNPCs(); })
+  .then(() => requestAnimationFrame(ts => { lastTime = ts; requestAnimationFrame(gameLoop); }))
   .catch(err => console.error(err));
