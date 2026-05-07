@@ -259,9 +259,9 @@ function drawNPCs() {
 // ── Sprite loader ─────────────────────────────────────────────────────────────
 
 const SPRITE_PATHS = {
-  npc1:      'sprites/npc-1.png',
-  npc2:      'sprites/npc-2.png',
-  npc3:      'sprites/npc-3.png',
+  npc1:      'sprites/MetroCity/CharacterModel/Character Model.png',
+  npc2:      'sprites/MetroCity/CharacterModel/Character Model.png',
+  npc3:      'sprites/MetroCity/CharacterModel/Character Model.png',
   bookshelf: 'sprites/bookshelf.png',
   plant:     'sprites/plant.png',
   wallArt:   'sprites/wall-art.png',
