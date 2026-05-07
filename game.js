@@ -248,10 +248,13 @@ function drawNPCs() {
   for (const npc of sortByY(NPCS)) {
     const img = sprites[npc.spriteKey];
     if (!img) continue;
+    const metroDir = getMetroCityDirIndex(npc.dir);
+    const sourceX = calcMetroCitySourceX(npc.frame, metroDir);
+    const sourceY = calcMetroCitySourceY();
     ctx.drawImage(
       img,
-      npc.frame * TILE, npc.dir * TILE, TILE, TILE,  // source rect in sprite sheet
-      roomX + npc.x,    roomY + npc.y,  TS,   TS     // dest rect on canvas
+      sourceX, sourceY, TILE, TILE,  // source rect in MetroCity strip
+      roomX + npc.x, roomY + npc.y, TS, TS  // dest rect on canvas
     );
   }
 }
