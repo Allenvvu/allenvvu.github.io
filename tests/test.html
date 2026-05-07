@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Unit Tests</title>
+  <style>
+    body { font-family: monospace; padding: 20px; background: #111; color: #eee; }
+    .pass { color: #2ecc71; } .fail { color: #e74c3c; }
+    h2 { color: #7eb8f7; margin: 16px 0 8px; }
+    #summary { margin-top: 16px; font-weight: bold; font-size: 14px; }
+  </style>
+</head>
+<body>
+<h1>Unit Tests</h1>
+<div id="results"></div>
+<div id="summary"></div>
+<script src="../game.js"></script>
+<script>
+const out = document.getElementById('results');
+let passed = 0, failed = 0;
+
+function assert(desc, actual, expected) {
+  const ok = JSON.stringify(actual) === JSON.stringify(expected);
+  const el = document.createElement('div');
+  el.className = ok ? 'pass' : 'fail';
+  el.textContent = (ok ? '✓ ' : '✗ ') + desc +
+    (ok ? '' : '  — got ' + JSON.stringify(actual) + ', expected ' + JSON.stringify(expected));
+  out.appendChild(el);
+  ok ? passed++ : failed++;
+}
+
+const G = window.GameUtils;
+
+// ── tileToPixel ──────────────────────────────────────────────────────────────
+assert('tileToPixel(0,0) at room origin',
+  G.tileToPixel(0, 0, 10, 20), { x: 10, y: 20 });
+assert('tileToPixel col offset',
+  G.tileToPixel(1, 0, 0, 0), { x: G.TS, y: 0 });
+assert('tileToPixel row offset',
+  G.tileToPixel(0, 1, 0, 0), { x: 0, y: G.TS });
+assert('tileToPixel combined',
+  G.tileToPixel(2, 3, 5, 10), { x: 5 + 2 * G.TS, y: 10 + 3 * G.TS });
+
+// ── roomOffset ───────────────────────────────────────────────────────────────
+assert('roomOffset centers room',
+  G.roomOffset(G.ROOM_COLS * G.TS + 100, G.ROOM_ROWS * G.TS + 60), { x: 50, y: 30 });
+assert('roomOffset exact fit',
+  G.roomOffset(G.ROOM_COLS * G.TS, G.ROOM_ROWS * G.TS), { x: 0, y: 0 });
+
+// ── clamp ────────────────────────────────────────────────────────────────────
+assert('clamp mid', G.clamp(5, 0, 10), 5);
+assert('clamp below min', G.clamp(-3, 0, 10), 0);
+assert('clamp above max', G.clamp(15, 0, 10), 10);
+assert('clamp at min boundary', G.clamp(0, 0, 10), 0);
+assert('clamp at max boundary', G.clamp(10, 0, 10), 10);
+
+document.getElementById('summary').textContent =
+  passed + ' passed, ' + failed + ' failed';
+document.getElementById('summary').style.color = failed === 0 ? '#2ecc71' : '#e74c3c';
+</script>
+</body>
+</html>
