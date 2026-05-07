@@ -15,6 +15,8 @@
 <div id="results"></div>
 <div id="summary"></div>
 <canvas id="game" style="display:none"></canvas>
+<script src="../catalog.js"></script>
+<script src="../layout.js"></script>
 <script src="../game.js"></script>
 <script>
 const out = document.getElementById('results');
@@ -59,11 +61,11 @@ const G2 = window.GameUtils;
 
 // ── createNPC ────────────────────────────────────────────────────────────────
 const npc = G2.createNPC('npc1', 5, 6);
-assert('createNPC x from tileCol',   npc.x,     5 * G2.TS);
-assert('createNPC y from tileRow',   npc.y,     6 * G2.TS);
-assert('createNPC state is IDLE',    npc.state, G2.STATE.IDLE);
-assert('createNPC dir is DOWN',      npc.dir,   G2.DIR.DOWN);
-assert('createNPC frame starts at 0', npc.frame, 0);
+assert('createNPC x from tileCol',         npc.x,          5 * G2.TS);
+assert('createNPC y from tileRow',         npc.y,          6 * G2.TS);
+assert('createNPC state is IDLE',          npc.state,      G2.STATE.IDLE);
+assert('createNPC dir is DOWN',            npc.dir,        G2.DIR.DOWN);
+assert('createNPC frame starts at 0',      npc.frame,      0);
 assert('createNPC cycleIndex starts at 0', npc.cycleIndex, 0);
 
 // ── sortByY ──────────────────────────────────────────────────────────────────
@@ -84,14 +86,10 @@ assert('clampNPCPos clamps top',
 assert('clampNPCPos clamps bottom',
   G2.clampNPCPos(10 * G2.TS, 9999), { x: 10 * G2.TS, y: G2.NPC_MAX_ROW * G2.TS });
 
-// ── WALK_CYCLE ────────────────────────────────────────────────────────────────
-assert('WALK_CYCLE has 6 steps',   G2.WALK_CYCLE.length, 6);
-assert('WALK_CYCLE step 0 is 0',   G2.WALK_CYCLE[0], 0);
-assert('WALK_CYCLE step 1 is 1',   G2.WALK_CYCLE[1], 1);
-assert('WALK_CYCLE step 2 is 2',   G2.WALK_CYCLE[2], 2);
-assert('WALK_CYCLE step 3 is 3',   G2.WALK_CYCLE[3], 3);
-assert('WALK_CYCLE step 4 is 4',   G2.WALK_CYCLE[4], 4);
-assert('WALK_CYCLE step 5 is 5',   G2.WALK_CYCLE[5], 5);
+// ── WALK_CYCLE (6-frame MetroCity format) ─────────────────────────────────────
+assert('WALK_CYCLE has 6 steps', G2.WALK_CYCLE.length, 6);
+assert('WALK_CYCLE frame 0 is 0', G2.WALK_CYCLE[0], 0);
+assert('WALK_CYCLE frame 5 is 5', G2.WALK_CYCLE[5], 5);
 
 const { updateNPC, STATE: ST, DIR: DR, NPC_SPEED: SPD, TS: TS3, WALK_CYCLE: WC } = window.GameUtils;
 
@@ -104,7 +102,7 @@ assert('IDLE stays IDLE at 50ms',       npcA.state,     ST.IDLE);
 assert('IDLE holds frame 0',            npcA.frame,     0);
 
 // IDLE: transitions to WALKING when timer expires
-window.GameUtils.updateNPC(npcA, 60); // total 110ms > 100ms threshold
+window.GameUtils.updateNPC(npcA, 60);
 assert('IDLE transitions to WALKING',   npcA.state, ST.WALKING);
 
 // WALKING: NPC moves toward target
@@ -115,8 +113,8 @@ npcB.dir   = DR.RIGHT;
 npcB.state = ST.WALKING;
 const xBefore = npcB.x;
 window.GameUtils.updateNPC(npcB, 100);
-assert('WALKING moves right',           npcB.x > xBefore, true);
-assert('WALKING Y unchanged horizontally', npcB.y, 5 * TS3);
+assert('WALKING moves right',              npcB.x > xBefore, true);
+assert('WALKING Y unchanged horizontally', npcB.y,           5 * TS3);
 
 // WALKING: arrives and transitions to IDLE
 const npcC = window.GameUtils.createNPC('npc1', 5, 5);
@@ -124,8 +122,8 @@ npcC.targetX = 5 * TS3 + 1;
 npcC.targetY = 5 * TS3;
 npcC.state = ST.WALKING;
 window.GameUtils.updateNPC(npcC, 400);
-assert('WALKING snaps to target',       npcC.x,     5 * TS3 + 1);
-assert('WALKING transitions to IDLE',   npcC.state, ST.IDLE);
+assert('WALKING snaps to target',        npcC.x,     5 * TS3 + 1);
+assert('WALKING transitions to IDLE',    npcC.state, ST.IDLE);
 assert('WALKING resets frame on arrive', npcC.frame, 0);
 
 // WALKING: frame animation advances
@@ -133,35 +131,26 @@ const npcD = window.GameUtils.createNPC('npc1', 5, 5);
 npcD.targetX = (5 + 10) * TS3;
 npcD.targetY = 5 * TS3;
 npcD.state = ST.WALKING;
-npcD.frameTimer = 140; // 10ms from advancing
-window.GameUtils.updateNPC(npcD, 20); // pushes frameTimer to 160 > 150
+npcD.frameTimer = 140;
+window.GameUtils.updateNPC(npcD, 20);
 assert('Frame advances after FRAME_INTERVAL', npcD.cycleIndex, 1);
-assert('Frame value matches WALK_CYCLE[1]',   npcD.frame, WC[1]);
+assert('Frame value matches WALK_CYCLE[1]',   npcD.frame,      WC[1]);
 
-// ── Direction mapping to MetroCity ────────────────────────────────────────
+// ── MetroCity direction mapping ───────────────────────────────────────────────
 const G3 = window.GameUtils;
-assert('getMetroCityDirIndex DOWN → 0',
-  G3.getMetroCityDirIndex(G3.DIR.DOWN), 0);
-assert('getMetroCityDirIndex RIGHT → 1',
-  G3.getMetroCityDirIndex(G3.DIR.RIGHT), 1);
-assert('getMetroCityDirIndex UP → 2',
-  G3.getMetroCityDirIndex(G3.DIR.UP), 2);
-assert('getMetroCityDirIndex LEFT → 3',
-  G3.getMetroCityDirIndex(G3.DIR.LEFT), 3);
+assert('getMetroCityDirIndex DOWN  → 0', G3.getMetroCityDirIndex(G3.DIR.DOWN),  0);
+assert('getMetroCityDirIndex RIGHT → 1', G3.getMetroCityDirIndex(G3.DIR.RIGHT), 1);
+assert('getMetroCityDirIndex UP    → 2', G3.getMetroCityDirIndex(G3.DIR.UP),    2);
+assert('getMetroCityDirIndex LEFT  → 3', G3.getMetroCityDirIndex(G3.DIR.LEFT),  3);
 
-// ── MetroCity sprite position calculation ──────────────────────────────────
-assert('calcMetroCitySourceX frame 0, dir 0',
-  G3.calcMetroCitySourceX(0, 0), 0);
-assert('calcMetroCitySourceX frame 3, dir 0',
-  G3.calcMetroCitySourceX(3, 0), 3 * G3.TILE);
-assert('calcMetroCitySourceX frame 0, dir 1 (right)',
-  G3.calcMetroCitySourceX(0, 1), 6 * G3.TILE);
-assert('calcMetroCitySourceX frame 2, dir 1 (right)',
-  G3.calcMetroCitySourceX(2, 1), (6 + 2) * G3.TILE);
-assert('calcMetroCitySourceX frame 0, dir 2 (up)',
-  G3.calcMetroCitySourceX(0, 2), 12 * G3.TILE);
-assert('calcMetroCitySourceY always 0',
-  G3.calcMetroCitySourceY(), 0);
+// ── MetroCity source coordinate helpers ──────────────────────────────────────
+assert('calcMetroCitySourceX frame 0, dir 0', G3.calcMetroCitySourceX(0, 0), 0);
+assert('calcMetroCitySourceX frame 3, dir 0', G3.calcMetroCitySourceX(3, 0), 3 * G3.MC_FRAME_W);
+assert('calcMetroCitySourceX frame 0, dir 1', G3.calcMetroCitySourceX(0, 1), 6 * G3.MC_FRAME_W);
+assert('calcMetroCitySourceX frame 2, dir 1', G3.calcMetroCitySourceX(2, 1), 8 * G3.MC_FRAME_W);
+assert('calcMetroCitySourceX frame 0, dir 2', G3.calcMetroCitySourceX(0, 2), 12 * G3.MC_FRAME_W);
+assert('calcMetroCitySourceX frame 5, dir 3', G3.calcMetroCitySourceX(5, 3), 23 * G3.MC_FRAME_W);
+assert('calcMetroCitySourceY always 0', G3.calcMetroCitySourceY(), 0);
 
 document.getElementById('summary').textContent =
   passed + ' passed, ' + failed + ' failed';
