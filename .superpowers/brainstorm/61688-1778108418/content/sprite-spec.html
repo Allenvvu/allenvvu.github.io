@@ -1,0 +1,114 @@
+<h2>Sprite & Animation Spec</h2>
+<p class="subtitle">Pixel dimensions, sheet layout, and NPC walk cycle</p>
+
+<div class="section">
+  <h3>Tile & Scale System</h3>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px">
+    <div style="background:rgba(255,255,255,0.05);border-radius:6px;padding:12px;text-align:center">
+      <div style="font-size:28px;font-weight:bold;color:#7eb8f7">16px</div>
+      <div class="label" style="margin-top:4px">Base tile size</div>
+      <div style="font-size:11px;color:#888;margin-top:4px">1 game unit</div>
+    </div>
+    <div style="background:rgba(255,255,255,0.05);border-radius:6px;padding:12px;text-align:center">
+      <div style="font-size:28px;font-weight:bold;color:#7ef7a8">×3</div>
+      <div class="label" style="margin-top:4px">Canvas scale</div>
+      <div style="font-size:11px;color:#888;margin-top:4px">48px on screen</div>
+    </div>
+    <div style="background:rgba(255,255,255,0.05);border-radius:6px;padding:12px;text-align:center">
+      <div style="font-size:28px;font-weight:bold;color:#f7c97e">24×16</div>
+      <div class="label" style="margin-top:4px">Room in tiles</div>
+      <div style="font-size:11px;color:#888;margin-top:4px">384×256 base px</div>
+    </div>
+  </div>
+  <p style="font-size:12px;color:#999;margin-top:10px">Drawing at 16px and scaling 3× via <code>imageSmoothingEnabled = false</code> gives crisp SNES-style pixels on all screen sizes.</p>
+</div>
+
+<div class="section">
+  <h3>NPC Sprite Sheet Layout</h3>
+  <p style="font-size:12px;color:#aaa;margin-bottom:12px">Each character: one PNG file, 48×64 pixels total (3 frames × 4 directions)</p>
+
+  <div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap">
+
+    <!-- Sprite sheet diagram -->
+    <div>
+      <div class="label" style="margin-bottom:6px">npc-1.png (48×64px)</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#333;width:144px;border:1px solid #555">
+        <!-- Row 1: Walk down (facing camera) -->
+        <div style="background:#1a1a2e;height:48px;display:flex;align-items:center;justify-content:center;font-size:18px">🧍</div>
+        <div style="background:#1a1a2e;height:48px;display:flex;align-items:center;justify-content:center;font-size:18px">🚶</div>
+        <div style="background:#1a1a2e;height:48px;display:flex;align-items:center;justify-content:center;font-size:18px">🧍</div>
+        <!-- Row 2: Walk up (away) -->
+        <div style="background:#1a1a3e;height:48px;display:flex;align-items:center;justify-content:center;font-size:18px">🔼</div>
+        <div style="background:#1a1a3e;height:48px;display:flex;align-items:center;justify-content:center;font-size:18px">🔼</div>
+        <div style="background:#1a1a3e;height:48px;display:flex;align-items:center;justify-content:center;font-size:18px">🔼</div>
+        <!-- Row 3: Walk left -->
+        <div style="background:#1a2a1e;height:48px;display:flex;align-items:center;justify-content:center;font-size:18px">◀</div>
+        <div style="background:#1a2a1e;height:48px;display:flex;align-items:center;justify-content:center;font-size:18px">◀</div>
+        <div style="background:#1a2a1e;height:48px;display:flex;align-items:center;justify-content:center;font-size:18px">◀</div>
+        <!-- Row 4: Walk right -->
+        <div style="background:#2a1a1e;height:48px;display:flex;align-items:center;justify-content:center;font-size:18px">▶</div>
+        <div style="background:#2a1a1e;height:48px;display:flex;align-items:center;justify-content:center;font-size:18px">▶</div>
+        <div style="background:#2a1a1e;height:48px;display:flex;align-items:center;justify-content:center;font-size:18px">▶</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);width:144px;margin-top:3px">
+        <div style="font-size:9px;color:#888;text-align:center">Frame 0</div>
+        <div style="font-size:9px;color:#888;text-align:center">Frame 1</div>
+        <div style="font-size:9px;color:#888;text-align:center">Frame 2</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0;margin-top:2px;width:144px">
+        <div style="font-size:9px;color:#7eb8f7;text-align:right;height:48px;display:flex;align-items:center;justify-content:flex-end;padding-right:4px;position:relative;left:-150px">row 0: down ↓</div>
+      </div>
+    </div>
+
+    <!-- Sheet annotations -->
+    <div style="flex:1;min-width:200px">
+      <div style="background:rgba(255,255,255,0.05);border-radius:6px;padding:12px;font-size:12px">
+        <div style="color:#7eb8f7;font-weight:bold;margin-bottom:8px">Sheet structure</div>
+        <div style="display:grid;grid-template-columns:auto 1fr;gap:4px 12px;color:#ccc;line-height:1.8">
+          <span style="color:#888">Row 0</span><span>Walk down (toward viewer)</span>
+          <span style="color:#888">Row 1</span><span>Walk up (away from viewer)</span>
+          <span style="color:#888">Row 2</span><span>Walk left</span>
+          <span style="color:#888">Row 3</span><span>Walk right</span>
+          <span style="color:#888">Cols</span><span>3 frames per direction</span>
+          <span style="color:#888">Frame</span><span>16×16px each</span>
+          <span style="color:#888">Total</span><span>48×64px PNG</span>
+          <span style="color:#888">BG</span><span>Transparent (no fill)</span>
+        </div>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.05);border-radius:6px;padding:12px;font-size:12px;margin-top:10px">
+        <div style="color:#7ef7a8;font-weight:bold;margin-bottom:8px">Furniture sprites (static PNGs)</div>
+        <div style="display:grid;grid-template-columns:auto 1fr;gap:4px 12px;color:#ccc;line-height:1.8">
+          <span style="color:#888">bookshelf.png</span><span>16×32px (2 tiles tall)</span>
+          <span style="color:#888">plant.png</span><span>16×24px</span>
+          <span style="color:#888">wall-art.png</span><span>32×24px</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>NPC Random Walk Behavior</h3>
+  <div style="background:rgba(255,255,255,0.04);border-radius:6px;padding:14px;font-size:12px;color:#ccc;line-height:1.9">
+    <div style="color:#f7c97e;margin-bottom:6px;font-weight:bold">State machine per NPC</div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <div style="background:#2a3a2a;border:1px solid #4a8a4a;border-radius:4px;padding:4px 10px">IDLE<br><span style="color:#888;font-size:10px">0.5–2s</span></div>
+      <div style="color:#888">→</div>
+      <div style="background:#2a2a3a;border:1px solid #4a4a8a;border-radius:4px;padding:4px 10px">PICK DIRECTION<br><span style="color:#888;font-size:10px">random tile target</span></div>
+      <div style="color:#888">→</div>
+      <div style="background:#3a2a2a;border:1px solid #8a4a4a;border-radius:4px;padding:4px 10px">WALKING<br><span style="color:#888;font-size:10px">animate frames</span></div>
+      <div style="color:#888">→</div>
+      <div style="background:#2a3a2a;border:1px solid #4a8a4a;border-radius:4px;padding:4px 10px">IDLE</div>
+    </div>
+    <ul style="margin-top:12px;padding-left:16px;line-height:2">
+      <li>3 NPCs, each with independent timers</li>
+      <li>Target tile picked randomly within room bounds (avoiding walls)</li>
+      <li>Walk speed: 1 tile per 0.4s — leisurely studio pace</li>
+      <li>Y-sort depth: NPCs sorted by Y position each frame so closer = on top</li>
+      <li>Frame animation: cycles frames 0→1→2→1 at 150ms per frame</li>
+    </ul>
+  </div>
+</div>
+
+<p class="subtitle" style="margin-top:8px">Does this spec look right? Any adjustments to NPC count, sizes, or behavior?</p>

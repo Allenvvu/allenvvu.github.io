@@ -1,0 +1,72 @@
+<h2>What's the pixel aesthetic direction?</h2>
+<p class="subtitle">Pick the vibe that feels closest to what you're imagining for the landing page</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="retro-room" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0a0a1a;padding:20px;font-family:monospace;min-height:160px;display:flex;flex-direction:column;gap:8px;">
+      <div style="color:#00ff88;font-size:11px;">▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓</div>
+      <div style="color:#fff;font-size:14px;margin:8px 0;">┌─────────────────────────────┐</div>
+      <div style="color:#fff;font-size:14px;">│  🏠  ALLEN'S WORLD          │</div>
+      <div style="color:#888;font-size:11px;">│                             │</div>
+      <div style="color:#00ff88;font-size:11px;">│  [📚 SHELF]  [🎮 GALLERY]   │</div>
+      <div style="color:#00ff88;font-size:11px;">│                             │</div>
+      <div style="color:#ff6b6b;font-size:11px;">│    ♪  ♪  ♪  ♪  ♪           │</div>
+      <div style="color:#fff;font-size:14px;">└─────────────────────────────┘</div>
+      <div style="color:#444;font-size:10px;text-align:center;">▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄</div>
+    </div>
+    <div class="card-body">
+      <h3>A — Retro Room / RPG Overworld</h3>
+      <p>Dark background, CRT-glow palette, ASCII box-drawing. Rooms you "walk into". Feels like a classic RPG town map — the bookshelf and gallery are buildings or rooms in a tiny world.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="isometric" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:20px;font-family:monospace;min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;">
+      <div style="color:#e94560;font-size:13px;letter-spacing:2px;">  ◇ ◇ ◇</div>
+      <div style="color:#e94560;font-size:13px;letter-spacing:2px;"> ◇ ◇ ◇ ◇</div>
+      <div style="color:#0f3460;background:#0f3460;font-size:13px;letter-spacing:2px;">◇ ◇ ◇ ◇ ◇</div>
+      <div style="margin-top:12px;color:#fff;font-size:10px;text-align:center;">
+        <span style="display:inline-block;background:#e94560;color:#fff;padding:2px 8px;margin:3px;font-size:10px;">📚 BOOKS</span>
+        <span style="display:inline-block;background:#533483;color:#fff;padding:2px 8px;margin:3px;font-size:10px;">🖼 WORK</span>
+      </div>
+      <div style="color:#888;font-size:10px;margin-top:8px;">isometric pixel tiles</div>
+    </div>
+    <div class="card-body">
+      <h3>B — Isometric Pixel City</h3>
+      <p>3/4 view pixel-art city or campus. Each section is a building rendered in isometric perspective. More visual depth, inspired by games like Mini Metro or Monument Valley pixel art.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="terminal" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#000;padding:20px;font-family:'Courier New',monospace;min-height:160px;">
+      <div style="color:#00ff00;font-size:11px;">$ whoami</div>
+      <div style="color:#fff;font-size:11px;">allen — builder / writer</div>
+      <div style="color:#00ff00;font-size:11px;margin-top:8px;">$ ls ~/world/</div>
+      <div style="color:#aaffaa;font-size:11px;">📁 projects/  📁 writings/  📁 about/</div>
+      <div style="color:#00ff00;font-size:11px;margin-top:8px;">$ cat projects/latest</div>
+      <div style="color:#888;font-size:10px;">▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░ loading...</div>
+      <div style="color:#00ff00;font-size:11px;margin-top:4px;animation:blink 1s infinite;">█</div>
+    </div>
+    <div class="card-body">
+      <h3>C — Hacker Terminal + Pixel Accents</h3>
+      <p>Terminal-first aesthetic with pixel art decorations. Content is navigated like a CLI but visually enhanced with pixel sprite characters and scanline effects. Minimal, sharp, developer-coded feel.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="cozy-pixel" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#2d1b69;padding:20px;min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+      <div style="font-size:28px;letter-spacing:4px;">🌙 ⭐ 🌟</div>
+      <div style="background:#1a0f3d;border:2px solid #7c5cbf;padding:10px 16px;margin-top:10px;font-family:monospace;color:#e0c8ff;font-size:11px;text-align:center;">
+        <div>~ Allen's cozy corner ~</div>
+        <div style="margin-top:6px;color:#a78bfa;">[ library ] [ workshop ]</div>
+      </div>
+      <div style="margin-top:10px;font-size:16px;letter-spacing:6px;">🌿 🪴 📖</div>
+    </div>
+    <div class="card-body">
+      <h3>D — Cozy Pixel / Lo-fi Aesthetic</h3>
+      <p>Warm, lo-fi vibes with soft pixel art. Think cozy room with a bookshelf and desk lit by a lamp. Softer palette, charming character sprites, ambient animation (rain, candle flicker). Approachable and warm.</p>
+    </div>
+  </div>
+
+</div>

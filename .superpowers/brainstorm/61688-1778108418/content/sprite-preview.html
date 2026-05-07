@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sprite Preview</title>
+<style>
+  body { background: #0d0d1a; color: #eee; font-family: monospace; padding: 24px; margin: 0; }
+  h2 { color: #7eb8f7; margin-bottom: 4px; }
+  .subtitle { color: #888; font-size: 13px; margin-bottom: 24px; }
+  .section { margin-bottom: 32px; }
+  h3 { color: #7ef7a8; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; border-bottom: 1px solid #333; padding-bottom: 6px; }
+  .sprite-row { display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start; }
+  .sprite-card { background: #1a1a2e; border: 1px solid #333; border-radius: 6px; padding: 12px; text-align: center; }
+  .sprite-card canvas { display: block; margin: 0 auto 8px; image-rendering: pixelated; }
+  .label { font-size: 10px; color: #888; }
+  .dir-label { font-size: 9px; color: #555; margin-top: 4px; }
+  .frames-row { display: flex; gap: 4px; justify-content: center; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<h2>Sprite Preview — 4× scale</h2>
+<p class="subtitle">All sprites rendered at 4× (pixel-perfect). These are placeholders — swap any PNG to update.</p>
+
+<div class="section">
+  <h3>NPC Characters (48×64px sprite sheets)</h3>
+  <div class="sprite-row" id="npc-row"></div>
+</div>
+
+<div class="section">
+  <h3>Furniture Sprites</h3>
+  <div class="sprite-row" id="furniture-row"></div>
+</div>
+
+<script>
+const SCALE = 4;
+
+function drawSpriteFrame(ctx, img, frameCol, dirRow, fw, fh, dx, dy, scale) {
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(img,
+    frameCol * fw, dirRow * fh, fw, fh,
+    dx, dy, fw * scale, fh * scale
+  );
+}
+
+function showNPC(src, name, containerId) {
+  const card = document.createElement('div');
+  card.className = 'sprite-card';
+
+  const title = document.createElement('div');
+  title.className = 'label';
+  title.style.marginBottom = '8px';
+  title.style.color = '#aaa';
+  title.textContent = name;
+  card.appendChild(title);
+
+  const img = new Image();
+  img.src = src;
+  img.onload = () => {
+    const FW = 16, FH = 16;
+    const dirs = ['↓ Down', '↑ Up', '← Left', '→ Right'];
+    dirs.forEach((dir, row) => {
+      const row_div = document.createElement('div');
+      row_div.style.display = 'flex';
+      row_div.style.alignItems = 'center';
+      row_div.style.gap = '6px';
+      row_div.style.marginBottom = '4px';
+
+      const lbl = document.createElement('div');
+      lbl.style.width = '50px';
+      lbl.style.fontSize = '10px';
+      lbl.style.color = '#666';
+      lbl.style.textAlign = 'right';
+      lbl.textContent = dir;
+      row_div.appendChild(lbl);
+
+      for (let frame = 0; frame < 3; frame++) {
+        const canvas = document.createElement('canvas');
+        canvas.width = FW * SCALE;
+        canvas.height = FH * SCALE;
+        canvas.style.imageRendering = 'pixelated';
+        canvas.style.border = '1px solid #2a2a3a';
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // Checkerboard background
+        for (let cy = 0; cy < FH * SCALE; cy += 4) {
+          for (let cx = 0; cx < FW * SCALE; cx += 4) {
+            ctx.fillStyle = ((cx/4 + cy/4) % 2 === 0) ? '#1a1a2e' : '#222235';
+            ctx.fillRect(cx, cy, 4, 4);
+          }
+        }
+        drawSpriteFrame(ctx, img, frame, row, FW, FH, 0, 0, SCALE);
+        row_div.appendChild(canvas);
+      }
+      card.appendChild(row_div);
+    });
+  };
+
+  document.getElementById(containerId).appendChild(card);
+}
+
+function showFurniture(src, name, w, h, containerId) {
+  const card = document.createElement('div');
+  card.className = 'sprite-card';
+
+  const img = new Image();
+  img.src = src;
+  img.onload = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = w * SCALE;
+    canvas.height = h * SCALE;
+    canvas.style.imageRendering = 'pixelated';
+    canvas.style.border = '1px solid #2a2a3a';
+    const ctx = canvas.getContext('2d');
+    for (let cy = 0; cy < h * SCALE; cy += 4) {
+      for (let cx = 0; cx < w * SCALE; cx += 4) {
+        ctx.fillStyle = ((cx/4 + cy/4) % 2 === 0) ? '#1a1a2e' : '#222235';
+        ctx.fillRect(cx, cy, 4, 4);
+      }
+    }
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(img, 0, 0, w * SCALE, h * SCALE);
+    card.appendChild(canvas);
+    const lbl = document.createElement('div');
+    lbl.className = 'label';
+    lbl.textContent = `${name} (${w}×${h})`;
+    card.appendChild(lbl);
+  };
+  document.getElementById(containerId).appendChild(card);
+}
+
+// Paths relative to THIS file's server root, which serves /personal-site
+showNPC('/sprites/npc-1.png', 'npc-1.png — Blue shirt', 'npc-row');
+showNPC('/sprites/npc-2.png', 'npc-2.png — Red hoodie', 'npc-row');
+showNPC('/sprites/npc-3.png', 'npc-3.png — Teal shirt', 'npc-row');
+
+showFurniture('/sprites/bookshelf.png', 'bookshelf', 16, 32, 'furniture-row');
+showFurniture('/sprites/plant.png', 'plant', 16, 24, 'furniture-row');
+showFurniture('/sprites/wall-art.png', 'wall-art', 32, 24, 'furniture-row');
+</script>
+</body>
+</html>

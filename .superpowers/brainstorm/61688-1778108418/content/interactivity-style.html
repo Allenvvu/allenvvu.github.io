@@ -1,0 +1,66 @@
+<h2>What kind of interactivity?</h2>
+<p class="subtitle">The reference image shows an RPG office scene — how should the user experience it?</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:16px;font-family:monospace;font-size:12px;color:#eee;min-height:120px;display:flex;flex-direction:column;justify-content:center;align-items:center">
+      <div style="width:80px;height:80px;background:#2d5a27;border:2px solid #4a9e41;display:grid;grid-template-columns:repeat(5,1fr);gap:1px;padding:4px">
+        <div style="background:#6b4226"></div><div style="background:#7a4f2e"></div><div style="background:#6b4226"></div><div style="background:#7a4f2e"></div><div style="background:#6b4226"></div>
+        <div style="background:#7a4f2e"></div><div style="background:#6b4226"></div><div style="background:#7a4f2e"></div><div style="background:#6b4226"></div><div style="background:#7a4f2e"></div>
+        <div style="background:#6b4226"></div><div style="background:#7a4f2e"></div><div style="background:#e8c56d;border-radius:50%"></div><div style="background:#7a4f2e"></div><div style="background:#6b4226"></div>
+        <div style="background:#7a4f2e"></div><div style="background:#6b4226"></div><div style="background:#7a4f2e"></div><div style="background:#6b4226"></div><div style="background:#7a4f2e"></div>
+        <div style="background:#6b4226"></div><div style="background:#7a4f2e"></div><div style="background:#6b4226"></div><div style="background:#7a4f2e"></div><div style="background:#6b4226"></div>
+      </div>
+      <div style="margin-top:8px;font-size:10px;color:#aaa">WASD / Arrow Keys</div>
+    </div>
+    <div class="card-body">
+      <h3>A — Playable Character</h3>
+      <p>Visitor controls a character walking around the studio with keyboard/arrow keys. RPG exploration feel.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:16px;display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:120px">
+      <div style="display:flex;gap:8px">
+        <div style="width:16px;height:24px;background:#e8a87c;border:1px solid #c47b50;animation:pulse 1s infinite alternate" title="NPC 1"></div>
+        <div style="width:16px;height:24px;background:#7cb8e8;border:1px solid #5090c0;animation:pulse 1.3s infinite alternate" title="NPC 2"></div>
+        <div style="width:16px;height:24px;background:#a8e87c;border:1px solid #78c050;animation:pulse 0.8s infinite alternate" title="NPC 3"></div>
+      </div>
+      <div style="margin-top:8px;font-size:10px;color:#aaa;font-family:monospace">Ambient life — no input needed</div>
+      <style>@keyframes pulse{from{transform:translateY(0)}to{transform:translateY(-4px)}}</style>
+    </div>
+    <div class="card-body">
+      <h3>B — Ambient Animation</h3>
+      <p>NPCs wander around autonomously. Scene feels alive without requiring any user input. Visitor just watches.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:16px;display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:120px">
+      <div style="width:80px;height:60px;background:#2a2a4a;border:2px solid #5555aa;display:flex;justify-content:center;align-items:center;cursor:pointer;position:relative">
+        <div style="font-size:20px">🖥️</div>
+        <div style="position:absolute;top:-20px;background:#5555aa;color:white;font-size:9px;padding:2px 6px;border-radius:2px;font-family:monospace">Click to see projects!</div>
+      </div>
+      <div style="margin-top:8px;font-size:10px;color:#aaa;font-family:monospace">Click objects → reveal content</div>
+    </div>
+    <div class="card-body">
+      <h3>C — Clickable Portfolio Objects</h3>
+      <p>Objects in the room (desk, monitor, bookshelf) are clickable and open portfolio sections, projects, or info cards.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="d" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:16px;display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:120px">
+      <div style="font-family:monospace;font-size:11px;color:#88ff88;text-align:left;width:120px">
+        <div>A + B + C</div>
+        <div style="color:#aaa;margin-top:4px">Walk around +</div>
+        <div style="color:#aaa">NPC animations +</div>
+        <div style="color:#aaa">Clickable objects</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>D — Full RPG Experience</h3>
+      <p>Player-controlled character, ambient NPCs, and clickable objects combined. Maximum engagement, most complex to build.</p>
+    </div>
+  </div>
+</div>

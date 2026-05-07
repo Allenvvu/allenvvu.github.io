@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sprite Preview</title>
+<style>
+  body { background: #0d0d1a; color: #eee; font-family: monospace; padding: 24px; margin: 0; }
+  h2 { color: #7eb8f7; margin-bottom: 4px; }
+  .subtitle { color: #888; font-size: 13px; margin-bottom: 24px; }
+  .section { margin-bottom: 32px; }
+  h3 { color: #7ef7a8; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; border-bottom: 1px solid #333; padding-bottom: 6px; }
+  .sprite-row { display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start; }
+  .sprite-card { background: #1a1a2e; border: 1px solid #333; border-radius: 6px; padding: 12px; text-align: center; }
+  canvas { display: block; image-rendering: pixelated; border: 1px solid #2a2a3a; }
+  .lbl { font-size: 10px; color: #888; margin-top: 6px; }
+  .dir-row { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+  .dir-lbl { width: 50px; font-size: 10px; color: #666; text-align: right; flex-shrink: 0; }
+  .card-title { font-size: 11px; color: #aaa; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+<h2>Sprite Preview — 4× scale</h2>
+<p class="subtitle">Placeholder sprites, pixel-perfect at 4×. Swap any PNG file to update the scene.</p>
+
+<div class="section">
+  <h3>NPC Characters (48×64px — 3 frames × 4 directions)</h3>
+  <div class="sprite-row" id="npc-row"></div>
+</div>
+<div class="section">
+  <h3>Furniture Sprites</h3>
+  <div class="sprite-row" id="furn-row"></div>
+</div>
+
+<script>
+const SCALE = 4;
+const SPRITES = {"npc1": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAABACAYAAABcIPRGAAABXklEQVR4nO2aMW6DQBBFZ0a0llK6iKL0ucF26VO5SpcLpA6R3MaS5cJVLpALcIV0yBdIH0U5QG7gyA3GsIu9MsJ8+K+C3f3DamHEfgYRcNTX6G6vtr72/PvPO/6SehNwklBHtnw+OJ+9vkcF7kpvAo4JOIqexFoTz7+84iLI4q5xEl3rrXyyWT5s15M0KN717caE+i+hNwHHBBxt+xm+cU+F/vr+JVrvPNf//VwVxz/5hza+yHyDy5OK4dhkT9U0XT/4Jm6T8gSqK3jO2EHkQNJ2wFNWrQ8xe4OibyVMwDEBxwQcE3BMwNFqA/3AhH4gCuZAFfqBBf0AFknbAekHIqEf6HUOZJVv9NPHt6jgXehNwDEBR9FNvdbErA+kwZVlfWAUSexYH9jD+kDO+kA89ANj20qYDNEPZCD/Cg3iDpiAo+hJrDUx/UAaXFn6gVEksaMf2EM/kNMPSDRd+4F/YQqQJSJOw4gAAAAASUVORK5CYII=", "npc2": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAABACAYAAABcIPRGAAABW0lEQVR4nO2aMW6DQBBF/4zwGWhoXcVFihRJY+UILlLmCDlIDpAjpEhBkSMgGjcp48otRe6QgshFbLJakEdBmA/zKpjdP6wWRuxnAciRWDDLsjoWr6oq2v+SegU5SVtD/njz5/zh9cOUeCi9ghwFOcJexBIGirurqPiX++2ucxBD67V58ra5rr/SRav40Hbo09Z+Cb2CHAU50vczvFpvjvqX771ZX0Su/7RYHo8/y3fpfJHFOjcHBey6rm8a7Lma1XpZm9/EfdKcgHAG/9N3EjWQ9J3wnFkbQ87RIOxLCQU5CnIU5CjIUZAjYcD9QOp+wITXQIj7ga37AS6SvhO6HzDifmDUNZAH3+hvnytT8iH0CnIU5Ai7qZcw4H4gdT8w8yIufH/ghO8PlL4/YMf9wNyWEoop+oGc5F+hSdwBBTnCXsQSBtwPpO4HZl7EhfuBE+4HSvcDMDO0H/gBYVmEQ8rUyhkAAAAASUVORK5CYII=", "npc3": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAABACAYAAABcIPRGAAABYklEQVR4nO2asWrDMBCG7w57z5S+RF8i0LFjoVPAL5An6NKlU7plL4FOhYweC3mJPoDX5hU8pGRIUIRsfNTIOuX/pvik/2QUnZw/MpFxOBT82d4dQ/H76jfYf0q9kHGKzpZyeX3dfuoyR9ILGUco2yXUKr/yifTsB+bbt+AOcOZQvfTuJLH14l7Ur7PjR7PuFJ/aTn262qfQCxlHyDg89hpePS4u+q+nB7V+Hhj/efd9+byp99y7C4U6uze16RtdebODNc74w7fREbmaAG8G/9M3ixooxk44ZNZSyJkMHArCD0REyDhCxhEyjpBx2A/ADzTwAypQAz7wAxX8gC2KsRPCDyiBH0i7BkrvP3p612WPoBcyjlDWS6hN/4yA/QD8QAM/cFtFzH4A5wMOOB+ocT6gB35ACfxAmj/mShvvCmXxJBbKcgm16fuAM/ADLnhf6BaLmP0A/IAD/EANP0BqYvuBP0umfvg24X2NAAAAAElFTkSuQmCC", "bookshelf": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAgCAYAAAAbifjMAAAAoUlEQVR4nGOMsZX7z0ABYAER9158IkuzkgQfxIA2EWmwQKZ7H5j+p7ccTJ95twlMz14xG0xHcvSDaf0QT4gBc2cyMDFQCJhGDWCgOAwYQQmJn5eLLM0fP3+DpIPzt19QlpDedgYQlXBWzVyGkuAY9qaOpgOGwZAXwAmJ4gLFUFVigFPi++iVJBVlsBQ5h+HzIIgFplEDGAY+DKiTF0AMcgEAsldA5uHKT8cAAAAASUVORK5CYII=", "plant": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAYCAYAAADzoH0MAAAAlklEQVR4nGNgGAUDDxhxSeidKfyPzL9k0o9VLROlLmDCJqi+LuE/MWJUcQEjjCHX4gm3gVNLHKvi79dewtmParYz0i4MSAEshJyNDLCpYWKgEDCiC9hqS2GNLhg4fPUZih5GZM6Vjii8mmFAp2IZI+28cKDC6/+LR8+wKpaQk2Jw6NiGooeJUhcwDX0D4CkRGYACi1gAAAIwH3CAS4zHAAAAAElFTkSuQmCC", "wall_art": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAYCAYAAACbU/80AAAAjElEQVR4nGOMsZX7zzCAgIlhgAELjKFUfZOuFt9rVUd1AK1ApWYCCr/9+oLBFQVMI94BLLAQ2HPIksHF7jjVAwQ9ztEBCzIH5AgQoIVD0O1QwuYAdEXUcgyyeeiAhRLN1ABMNDV91AFEACaGAQZMow5gGGDAAmN8fv5lZIYA04h3AAssBPTv/BqZUQAACvEdDhITz2kAAAAASUVORK5CYII="};
+
+function checkerCtx(canvas) {
+  const ctx = canvas.getContext('2d');
+  for (let cy = 0; cy < canvas.height; cy += 4) {
+    for (let cx = 0; cx < canvas.width; cx += 4) {
+      ctx.fillStyle = ((cx/4+cy/4)%2===0) ? '#1a1a2e' : '#222235';
+      ctx.fillRect(cx, cy, 4, 4);
+    }
+  }
+  ctx.imageSmoothingEnabled = false;
+  return ctx;
+}
+
+function showNPC(key, label) {
+  const img = new Image();
+  img.src = SPRITES[key];
+  img.onload = () => {
+    const card = document.createElement('div');
+    card.className = 'sprite-card';
+    const title = document.createElement('div');
+    title.className = 'card-title';
+    title.textContent = label;
+    card.appendChild(title);
+    ['↓ Down','↑ Up','← Left','→ Right'].forEach((dir, row) => {
+      const rowDiv = document.createElement('div');
+      rowDiv.className = 'dir-row';
+      const lbl = document.createElement('div');
+      lbl.className = 'dir-lbl';
+      lbl.textContent = dir;
+      rowDiv.appendChild(lbl);
+      for (let frame = 0; frame < 3; frame++) {
+        const c = document.createElement('canvas');
+        c.width = 16 * SCALE; c.height = 16 * SCALE;
+        const ctx = checkerCtx(c);
+        ctx.drawImage(img, frame*16, row*16, 16, 16, 0, 0, 16*SCALE, 16*SCALE);
+        rowDiv.appendChild(c);
+      }
+      card.appendChild(rowDiv);
+    });
+    document.getElementById('npc-row').appendChild(card);
+  };
+}
+
+function showFurn(key, label, w, h) {
+  const img = new Image();
+  img.src = SPRITES[key];
+  img.onload = () => {
+    const card = document.createElement('div');
+    card.className = 'sprite-card';
+    const c = document.createElement('canvas');
+    c.width = w * SCALE; c.height = h * SCALE;
+    const ctx = checkerCtx(c);
+    ctx.drawImage(img, 0, 0, w*SCALE, h*SCALE);
+    card.appendChild(c);
+    const lbl = document.createElement('div');
+    lbl.className = 'lbl';
+    lbl.textContent = label + ' (' + w + '×' + h + ')';
+    card.appendChild(lbl);
+    document.getElementById('furn-row').appendChild(card);
+  };
+}
+
+showNPC('npc1', 'npc-1.png — blue shirt');
+showNPC('npc2', 'npc-2.png — red hoodie');
+showNPC('npc3', 'npc-3.png — teal shirt');
+
+showFurn('bookshelf', 'bookshelf.png', 16, 32);
+showFurn('plant',     'plant.png',     16, 24);
+showFurn('wall_art',  'wall-art.png',  32, 24);
+</script>
+</body>
+</html>
