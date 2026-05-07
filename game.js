@@ -84,5 +84,33 @@ function drawRoom() {
   ctx.fillRect(roomX, roomY + WALL_ROWS * TS - 3, ROOM_COLS * TS, 3);
 }
 
-// Temporary bootstrap — replaced in Task 9
-drawRoom();
+// ── Sprite loader ─────────────────────────────────────────────────────────────
+
+const SPRITE_PATHS = {
+  npc1:      'sprites/npc-1.png',
+  npc2:      'sprites/npc-2.png',
+  npc3:      'sprites/npc-3.png',
+  bookshelf: 'sprites/bookshelf.png',
+  plant:     'sprites/plant.png',
+  wallArt:   'sprites/wall-art.png',
+};
+
+const sprites = {};
+
+function loadSprites() {
+  const entries = Object.entries(SPRITE_PATHS);
+  return Promise.all(
+    entries.map(([key, src]) =>
+      new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload  = () => { sprites[key] = img; resolve(); };
+        img.onerror = () => reject(new Error('Failed to load sprite: ' + src));
+        img.src = src;
+      })
+    )
+  );
+}
+
+loadSprites()
+  .then(() => drawRoom())
+  .catch(err => console.error(err));
