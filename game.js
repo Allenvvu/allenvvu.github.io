@@ -1,14 +1,16 @@
 // game.js
 
-const TILE = 16;         // base tile size in pixels
-const SCALE = 3;         // render scale (pixel-perfect 3×)
-const TS = TILE * SCALE; // on-screen tile size = 48px
+const TILE  = 16;
+const SCALE = 3;
+const TS    = TILE * SCALE;  // 48px on screen
 
-const ROOM_COLS = 24;
-const ROOM_ROWS = 16;
-const WALL_ROWS = 3;     // top rows reserved for wall
+// Room dimensions from layout.js (loaded before this script)
+const ROOM_COLS = LAYOUT.cols;
+const ROOM_ROWS = LAYOUT.rows;
+const WALL_ROWS = LAYOUT.wallRows;
 
-// Returns the pixel top-left of a tile within the room's local space
+// ── Utilities ─────────────────────────────────────────────────────────────────
+
 function tileToPixel(tileCol, tileRow, roomX, roomY) {
   return {
     x: roomX + tileCol * TS,
@@ -16,7 +18,6 @@ function tileToPixel(tileCol, tileRow, roomX, roomY) {
   };
 }
 
-// Returns the canvas offset to center the room
 function roomOffset(canvasW, canvasH) {
   return {
     x: Math.floor((canvasW - ROOM_COLS * TS) / 2),
@@ -30,10 +31,10 @@ function clamp(val, min, max) {
 
 window.GameUtils = { tileToPixel, roomOffset, clamp, TILE, SCALE, TS, ROOM_COLS, ROOM_ROWS, WALL_ROWS };
 
-// ── Canvas setup ─────────────────────────────────────────────────────────────
+// ── Canvas setup ──────────────────────────────────────────────────────────────
 
 const canvas = document.getElementById('game');
-const ctx = canvas.getContext('2d');
+const ctx    = canvas.getContext('2d');
 ctx.imageSmoothingEnabled = false;
 
 let roomX = 0, roomY = 0;
@@ -41,7 +42,7 @@ let roomX = 0, roomY = 0;
 function resize() {
   canvas.width  = window.innerWidth;
   canvas.height = window.innerHeight;
-  ctx.imageSmoothingEnabled = false; // reapply after resize clears it
+  ctx.imageSmoothingEnabled = false;
   const off = roomOffset(canvas.width, canvas.height);
   roomX = off.x;
   roomY = off.y;
@@ -50,12 +51,10 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
-// ── Colors ───────────────────────────────────────────────────────────────────
+// ── Colors (wall fallback + page bg) ──────────────────────────────────────────
 
 const COLORS = {
   page:       '#0d0d1a',
-  floorA:     '#7a4f2e',
-  floorB:     '#6b4226',
   wall:       '#2a1f3d',
   wallAccent: '#3d2f5a',
 };
@@ -63,56 +62,60 @@ const COLORS = {
 // ── Room renderer ─────────────────────────────────────────────────────────────
 
 function drawRoom() {
-  // Page background
   ctx.fillStyle = COLORS.page;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Floor tiles (rows WALL_ROWS to ROOM_ROWS-1)
+  // Floor — tile-based (floor_0.png), falls back to flat color if not loaded
+  const floorImg = sprites['__floor__'];
   for (let row = WALL_ROWS; row < ROOM_ROWS; row++) {
     for (let col = 0; col < ROOM_COLS; col++) {
-      ctx.fillStyle = (col + row) % 2 === 0 ? COLORS.floorA : COLORS.floorB;
-      ctx.fillRect(roomX + col * TS, roomY + row * TS, TS, TS);
+      if (floorImg) {
+        ctx.drawImage(floorImg, 0, 0, TILE, TILE,
+          roomX + col * TS, roomY + row * TS, TS, TS);
+      } else {
+        ctx.fillStyle = (col + row) % 2 === 0 ? '#7a4f2e' : '#6b4226';
+        ctx.fillRect(roomX + col * TS, roomY + row * TS, TS, TS);
+      }
     }
   }
 
-  // Wall strip
+  // Wall strip — flat-color fallback until wall bitmask art is ready
   ctx.fillStyle = COLORS.wall;
   ctx.fillRect(roomX, roomY, ROOM_COLS * TS, WALL_ROWS * TS);
 
-  // Baseboard accent line at bottom of wall
+  // Baseboard accent
   ctx.fillStyle = COLORS.wallAccent;
   ctx.fillRect(roomX, roomY + WALL_ROWS * TS - 3, ROOM_COLS * TS, 3);
 }
 
-// ── Furniture ─────────────────────────────────────────────────────────────────
-
-// Each entry: { key, tileCol, tileRow, w, h }
-// w/h are base pixel dimensions of the PNG (drawn at SCALE×)
-const FURNITURE = [
-  { key: 'bookshelf', tileCol: 1,                  tileRow: WALL_ROWS,      w: 16, h: 32 },
-  { key: 'plant',     tileCol: ROOM_COLS - 2,       tileRow: ROOM_ROWS - 2,  w: 16, h: 24 },
-  { key: 'wallArt',   tileCol: Math.floor(ROOM_COLS / 2) - 1, tileRow: 1,   w: 32, h: 24 },
-];
+// ── Furniture renderer ────────────────────────────────────────────────────────
 
 function drawFurniture() {
-  // Sort back-to-front (lower tileRow = further back)
-  const sorted = [...FURNITURE].sort((a, b) => a.tileRow - b.tileRow);
-  for (const f of sorted) {
-    if (!sprites[f.key]) continue;
-    ctx.drawImage(
-      sprites[f.key],
-      0, 0, f.w, f.h,
-      roomX + f.tileCol * TS,
-      roomY + f.tileRow * TS,
-      f.w * SCALE,
-      f.h * SCALE
-    );
+  // Attach sort metric and catalog entry for each layout item
+  const items = LAYOUT.furniture
+    .map(f => {
+      const meta = CATALOG[f.type];
+      if (!meta) return null;
+      return { ...f, meta, sortY: f.row + meta.fh };
+    })
+    .filter(Boolean);
+
+  // Back-to-front (ascending sortY)
+  items.sort((a, b) => a.sortY - b.sortY);
+
+  for (const f of items) {
+    const img = sprites[f.uid];
+    if (!img) continue;
+
+    const x = roomX + f.col * TS;
+    const y = roomY + f.row * TS;
+    ctx.drawImage(img, 0, 0, f.meta.w, f.meta.h,
+      x, y, f.meta.w * SCALE, f.meta.h * SCALE);
   }
 }
 
 // ── NPC system ────────────────────────────────────────────────────────────────
 
-// Walkable bounds (tile coords, inclusive)
 const NPC_MIN_COL = 2;
 const NPC_MAX_COL = ROOM_COLS - 3;
 const NPC_MIN_ROW = WALL_ROWS + 1;
@@ -120,21 +123,38 @@ const NPC_MAX_ROW = ROOM_ROWS - 2;
 
 const STATE = { IDLE: 'idle', WALKING: 'walking' };
 
-// Sprite sheet row per direction
 const DIR = { DOWN: 0, UP: 1, LEFT: 2, RIGHT: 3 };
 
-// Walk animation: 6-step cycle 0→1→2→3→4→5 using a cycleIndex (0–5)
+// MetroCity: 6-frame walk cycle
 const WALK_CYCLE = [0, 1, 2, 3, 4, 5];
+
+// MetroCity sprite sheet: single horizontal strip, 4 dirs × 6 frames
+const MC_FRAME_W = 32;  // 16px char + 16px padding
+const MC_FRAME_H = 33;
+
+// Maps game direction to MetroCity column group (DOWN=0, RIGHT=1, UP=2, LEFT=3)
+function getMetroCityDirIndex(dir) {
+  const map = { [DIR.DOWN]: 0, [DIR.RIGHT]: 1, [DIR.UP]: 2, [DIR.LEFT]: 3 };
+  return map[dir] ?? 0;
+}
+
+function calcMetroCitySourceX(frame, metroDir) {
+  return (metroDir * 6 + frame) * MC_FRAME_W;
+}
+
+function calcMetroCitySourceY() {
+  return 0;
+}
 
 function createNPC(spriteKey, startCol, startRow) {
   return {
     spriteKey,
-    x: startCol * TS,    // pixel X within room (local space)
-    y: startRow * TS,    // pixel Y within room (local space)
+    x: startCol * TS,
+    y: startRow * TS,
     dir: DIR.DOWN,
-    cycleIndex: 0,       // index into WALK_CYCLE
-    frame: 0,            // current sprite sheet column = WALK_CYCLE[cycleIndex]
-    frameTimer: 0,       // ms since last frame advance
+    cycleIndex: 0,
+    frame: 0,
+    frameTimer: 0,
     state: STATE.IDLE,
     idleTimer: Math.random() * 1500 + 500,
     targetX: startCol * TS,
@@ -154,12 +174,15 @@ function clampNPCPos(px, py) {
 }
 
 window.GameUtils = Object.assign(window.GameUtils, {
-  createNPC, sortByY, clampNPCPos, WALK_CYCLE,
-  STATE, DIR, NPC_MIN_COL, NPC_MAX_COL, NPC_MIN_ROW, NPC_MAX_ROW,
+  createNPC, sortByY, clampNPCPos,
+  WALK_CYCLE, STATE, DIR,
+  NPC_MIN_COL, NPC_MAX_COL, NPC_MIN_ROW, NPC_MAX_ROW,
+  MC_FRAME_W, MC_FRAME_H,
+  getMetroCityDirIndex, calcMetroCitySourceX, calcMetroCitySourceY,
 });
 
-const NPC_SPEED     = TS / 400;  // pixels per millisecond (1 tile per 400ms)
-const FRAME_INTERVAL = 150;       // ms per animation frame advance
+const NPC_SPEED      = TS / 400;
+const FRAME_INTERVAL = 150;
 
 function pickTarget(npc) {
   const col = Math.floor(Math.random() * (NPC_MAX_COL - NPC_MIN_COL + 1)) + NPC_MIN_COL;
@@ -178,14 +201,13 @@ function pickTarget(npc) {
 
 function updateNPC(npc, dt) {
   if (npc.state === STATE.IDLE) {
-    npc.idleTimer -= dt;
     npc.frame      = 0;
     npc.frameTimer = 0;
+    npc.idleTimer -= dt;
     if (npc.idleTimer <= 0) pickTarget(npc);
     return;
   }
 
-  // WALKING
   const dx   = npc.targetX - npc.x;
   const dy   = npc.targetY - npc.y;
   const dist = Math.sqrt(dx * dx + dy * dy);
@@ -211,35 +233,14 @@ function updateNPC(npc, dt) {
   }
 }
 
-function getMetroCityDirIndex(gameDir) {
-  const map = {
-    [DIR.DOWN]:  0,  // MetroCity: forward (cols 0-5)
-    [DIR.RIGHT]: 1,  // MetroCity: right (cols 6-11)
-    [DIR.UP]:    2,  // MetroCity: backward (cols 12-17)
-    [DIR.LEFT]:  3,  // MetroCity: left (cols 18-23)
-  };
-  return map[gameDir];
-}
-
-function calcMetroCitySourceX(frame, metroDir) {
-  return (metroDir * 6 + frame) * TILE;
-}
-
-function calcMetroCitySourceY() {
-  return 0; // All frames in single row
-}
-
 window.GameUtils = Object.assign(window.GameUtils, {
-  updateNPC, pickTarget, NPC_SPEED, FRAME_INTERVAL, getMetroCityDirIndex,
-  calcMetroCitySourceX, calcMetroCitySourceY,
+  updateNPC, pickTarget, NPC_SPEED, FRAME_INTERVAL,
 });
 
 // ── NPC instances ─────────────────────────────────────────────────────────────
 
 const NPCS = [
-  createNPC('npc1', 8,  NPC_MIN_ROW + 1),
-  createNPC('npc2', 14, NPC_MIN_ROW + 3),
-  createNPC('npc3', 19, NPC_MIN_ROW + 5),
+  createNPC('char_main', Math.floor(ROOM_COLS / 2), NPC_MIN_ROW + 3),
 ];
 
 // ── NPC renderer ─────────────────────────────────────────────────────────────
@@ -248,38 +249,42 @@ function drawNPCs() {
   for (const npc of sortByY(NPCS)) {
     const img = sprites[npc.spriteKey];
     if (!img) continue;
+
     const metroDir = getMetroCityDirIndex(npc.dir);
-    const sourceX = calcMetroCitySourceX(npc.frame, metroDir);
-    const sourceY = calcMetroCitySourceY();
+    const sx = calcMetroCitySourceX(npc.frame, metroDir);
+    const sy = calcMetroCitySourceY();
     ctx.drawImage(
       img,
-      sourceX, sourceY, TILE, TILE,  // source rect in MetroCity strip
-      roomX + npc.x, roomY + npc.y, TS, TS  // dest rect on canvas
+      sx, sy, MC_FRAME_W, MC_FRAME_H,
+      roomX + npc.x, roomY + npc.y, TS * 2, TS * 2
     );
   }
 }
 
 // ── Sprite loader ─────────────────────────────────────────────────────────────
 
+// Floor and character sprite paths
 const SPRITE_PATHS = {
-  npc1:      'sprites/MetroCity/CharacterModel/Character Model.png',
-  npc2:      'sprites/MetroCity/CharacterModel/Character Model.png',
-  npc3:      'sprites/MetroCity/CharacterModel/Character Model.png',
-  bookshelf: 'sprites/bookshelf.png',
-  plant:     'sprites/plant.png',
-  wallArt:   'sprites/wall-art.png',
+  '__floor__':  'assets/floor_0.png',
+  'char_main':  'assets/characters/Character Model.png',
 };
+
+// Auto-generate furniture paths from catalog
+for (const [uid, item] of Object.entries(LAYOUT.furniture
+    ? Object.fromEntries(LAYOUT.furniture.map(f => [f.uid, f])) : {})) {
+  const meta = CATALOG[item.type];
+  if (meta) SPRITE_PATHS[uid] = meta.file;
+}
 
 const sprites = {};
 
 function loadSprites() {
-  const entries = Object.entries(SPRITE_PATHS);
   return Promise.all(
-    entries.map(([key, src]) =>
-      new Promise((resolve, reject) => {
+    Object.entries(SPRITE_PATHS).map(([key, src]) =>
+      new Promise((resolve) => {
         const img = new Image();
         img.onload  = () => { sprites[key] = img; resolve(); };
-        img.onerror = () => reject(new Error('Failed to load sprite: ' + src));
+        img.onerror = () => { console.warn('Missing sprite:', src); resolve(); };
         img.src = src;
       })
     )
@@ -304,7 +309,7 @@ function drawVignette() {
 let lastTime = 0;
 
 function gameLoop(timestamp) {
-  const dt = Math.min(timestamp - lastTime, 100); // cap at 100ms (tab unfocus protection)
+  const dt = Math.min(timestamp - lastTime, 100);
   lastTime = timestamp;
 
   for (const npc of NPCS) updateNPC(npc, dt);
