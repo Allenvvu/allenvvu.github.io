@@ -1,0 +1,7 @@
+# Reference source files (assets already extracted to assets/)
+pixel-agent/
+
+# Python
+__pycache__/
+*.pyc
+venv/
