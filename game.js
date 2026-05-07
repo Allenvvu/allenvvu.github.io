@@ -221,8 +221,17 @@ function getMetroCityDirIndex(gameDir) {
   return map[gameDir];
 }
 
+function calcMetroCitySourceX(frame, metroDir) {
+  return (metroDir * 6 + frame) * TILE;
+}
+
+function calcMetroCitySourceY() {
+  return 0; // All frames in single row
+}
+
 window.GameUtils = Object.assign(window.GameUtils, {
   updateNPC, pickTarget, NPC_SPEED, FRAME_INTERVAL, getMetroCityDirIndex,
+  calcMetroCitySourceX, calcMetroCitySourceY,
 });
 
 // ── NPC instances ─────────────────────────────────────────────────────────────

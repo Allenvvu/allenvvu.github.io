@@ -147,6 +147,20 @@ assert('getMetroCityDirIndex UP → 2',
 assert('getMetroCityDirIndex LEFT → 3',
   G3.getMetroCityDirIndex(G3.DIR.LEFT), 3);
 
+// ── MetroCity sprite position calculation ──────────────────────────────────
+assert('calcMetroCitySourceX frame 0, dir 0',
+  G3.calcMetroCitySourceX(0, 0), 0);
+assert('calcMetroCitySourceX frame 3, dir 0',
+  G3.calcMetroCitySourceX(3, 0), 3 * G3.TILE);
+assert('calcMetroCitySourceX frame 0, dir 1 (right)',
+  G3.calcMetroCitySourceX(0, 1), 6 * G3.TILE);
+assert('calcMetroCitySourceX frame 2, dir 1 (right)',
+  G3.calcMetroCitySourceX(2, 1), (6 + 2) * G3.TILE);
+assert('calcMetroCitySourceX frame 0, dir 2 (up)',
+  G3.calcMetroCitySourceX(0, 2), 12 * G3.TILE);
+assert('calcMetroCitySourceY always 0',
+  G3.calcMetroCitySourceY(), 0);
+
 document.getElementById('summary').textContent =
   passed + ' passed, ' + failed + ' failed';
 document.getElementById('summary').style.color = failed === 0 ? '#2ecc71' : '#e74c3c';
