@@ -158,6 +158,63 @@ window.GameUtils = Object.assign(window.GameUtils, {
   STATE, DIR, NPC_MIN_COL, NPC_MAX_COL, NPC_MIN_ROW, NPC_MAX_ROW,
 });
 
+const NPC_SPEED     = TS / 400;  // pixels per millisecond (1 tile per 400ms)
+const FRAME_INTERVAL = 150;       // ms per animation frame advance
+
+function pickTarget(npc) {
+  const col = Math.floor(Math.random() * (NPC_MAX_COL - NPC_MIN_COL + 1)) + NPC_MIN_COL;
+  const row = Math.floor(Math.random() * (NPC_MAX_ROW - NPC_MIN_ROW + 1)) + NPC_MIN_ROW;
+  npc.targetX = col * TS;
+  npc.targetY = row * TS;
+
+  const dx = npc.targetX - npc.x;
+  const dy = npc.targetY - npc.y;
+  npc.dir = (Math.abs(dx) >= Math.abs(dy))
+    ? (dx >= 0 ? DIR.RIGHT : DIR.LEFT)
+    : (dy >= 0 ? DIR.DOWN  : DIR.UP);
+
+  npc.state = STATE.WALKING;
+}
+
+function updateNPC(npc, dt) {
+  if (npc.state === STATE.IDLE) {
+    npc.idleTimer -= dt;
+    npc.frame      = 0;
+    npc.frameTimer = 0;
+    if (npc.idleTimer <= 0) pickTarget(npc);
+    return;
+  }
+
+  // WALKING
+  const dx   = npc.targetX - npc.x;
+  const dy   = npc.targetY - npc.y;
+  const dist = Math.sqrt(dx * dx + dy * dy);
+  const step = NPC_SPEED * dt;
+
+  if (dist <= step) {
+    npc.x          = npc.targetX;
+    npc.y          = npc.targetY;
+    npc.state      = STATE.IDLE;
+    npc.idleTimer  = Math.random() * 1500 + 500;
+    npc.frame      = 0;
+    npc.cycleIndex = 0;
+  } else {
+    npc.x += (dx / dist) * step;
+    npc.y += (dy / dist) * step;
+
+    npc.frameTimer += dt;
+    if (npc.frameTimer >= FRAME_INTERVAL) {
+      npc.frameTimer -= FRAME_INTERVAL;
+      npc.cycleIndex  = (npc.cycleIndex + 1) % WALK_CYCLE.length;
+      npc.frame       = WALK_CYCLE[npc.cycleIndex];
+    }
+  }
+}
+
+window.GameUtils = Object.assign(window.GameUtils, {
+  updateNPC, pickTarget, NPC_SPEED, FRAME_INTERVAL,
+});
+
 // ── Sprite loader ─────────────────────────────────────────────────────────────
 
 const SPRITE_PATHS = {

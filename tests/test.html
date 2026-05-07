@@ -90,6 +90,51 @@ assert('WALK_CYCLE step 1 is 1',   G2.WALK_CYCLE[1], 1);
 assert('WALK_CYCLE step 2 is 2',   G2.WALK_CYCLE[2], 2);
 assert('WALK_CYCLE step 3 is 1',   G2.WALK_CYCLE[3], 1);
 
+const { updateNPC, STATE: ST, DIR: DR, NPC_SPEED: SPD, TS: TS3, WALK_CYCLE: WC } = window.GameUtils;
+
+// IDLE: timer counts down
+const npcA = window.GameUtils.createNPC('npc1', 5, 6);
+npcA.idleTimer = 100;
+window.GameUtils.updateNPC(npcA, 50);
+assert('IDLE timer decrements',         npcA.idleTimer, 50);
+assert('IDLE stays IDLE at 50ms',       npcA.state,     ST.IDLE);
+assert('IDLE holds frame 0',            npcA.frame,     0);
+
+// IDLE: transitions to WALKING when timer expires
+window.GameUtils.updateNPC(npcA, 60); // total 110ms > 100ms threshold
+assert('IDLE transitions to WALKING',   npcA.state, ST.WALKING);
+
+// WALKING: NPC moves toward target
+const npcB = window.GameUtils.createNPC('npc1', 5, 5);
+npcB.targetX = (5 + 4) * TS3;
+npcB.targetY = 5 * TS3;
+npcB.dir   = DR.RIGHT;
+npcB.state = ST.WALKING;
+const xBefore = npcB.x;
+window.GameUtils.updateNPC(npcB, 100);
+assert('WALKING moves right',           npcB.x > xBefore, true);
+assert('WALKING Y unchanged horizontally', npcB.y, 5 * TS3);
+
+// WALKING: arrives and transitions to IDLE
+const npcC = window.GameUtils.createNPC('npc1', 5, 5);
+npcC.targetX = 5 * TS3 + 1;
+npcC.targetY = 5 * TS3;
+npcC.state = ST.WALKING;
+window.GameUtils.updateNPC(npcC, 400);
+assert('WALKING snaps to target',       npcC.x,     5 * TS3 + 1);
+assert('WALKING transitions to IDLE',   npcC.state, ST.IDLE);
+assert('WALKING resets frame on arrive', npcC.frame, 0);
+
+// WALKING: frame animation advances
+const npcD = window.GameUtils.createNPC('npc1', 5, 5);
+npcD.targetX = (5 + 10) * TS3;
+npcD.targetY = 5 * TS3;
+npcD.state = ST.WALKING;
+npcD.frameTimer = 140; // 10ms from advancing
+window.GameUtils.updateNPC(npcD, 20); // pushes frameTimer to 160 > 150
+assert('Frame advances after FRAME_INTERVAL', npcD.cycleIndex, 1);
+assert('Frame value matches WALK_CYCLE[1]',   npcD.frame, WC[1]);
+
 document.getElementById('summary').textContent =
   passed + ' passed, ' + failed + ' failed';
 document.getElementById('summary').style.color = failed === 0 ? '#2ecc71' : '#e74c3c';
