@@ -84,6 +84,32 @@ function drawRoom() {
   ctx.fillRect(roomX, roomY + WALL_ROWS * TS - 3, ROOM_COLS * TS, 3);
 }
 
+// ── Furniture ─────────────────────────────────────────────────────────────────
+
+// Each entry: { key, tileCol, tileRow, w, h }
+// w/h are base pixel dimensions of the PNG (drawn at SCALE×)
+const FURNITURE = [
+  { key: 'bookshelf', tileCol: 1,                  tileRow: WALL_ROWS,      w: 16, h: 32 },
+  { key: 'plant',     tileCol: ROOM_COLS - 2,       tileRow: ROOM_ROWS - 2,  w: 16, h: 24 },
+  { key: 'wallArt',   tileCol: Math.floor(ROOM_COLS / 2) - 1, tileRow: 1,   w: 32, h: 24 },
+];
+
+function drawFurniture() {
+  // Sort back-to-front (lower tileRow = further back)
+  const sorted = [...FURNITURE].sort((a, b) => a.tileRow - b.tileRow);
+  for (const f of sorted) {
+    if (!sprites[f.key]) continue;
+    ctx.drawImage(
+      sprites[f.key],
+      0, 0, f.w, f.h,
+      roomX + f.tileCol * TS,
+      roomY + f.tileRow * TS,
+      f.w * SCALE,
+      f.h * SCALE
+    );
+  }
+}
+
 // ── Sprite loader ─────────────────────────────────────────────────────────────
 
 const SPRITE_PATHS = {
@@ -112,5 +138,5 @@ function loadSprites() {
 }
 
 loadSprites()
-  .then(() => drawRoom())
+  .then(() => { drawRoom(); drawFurniture(); })
   .catch(err => console.error(err));
