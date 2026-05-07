@@ -217,17 +217,134 @@ def make_wall_art(out_path):
     print(f"  {out_path}  (32×24)")
 
 
+# ── pixel-agents assets ───────────────────────────────────────────────────────
+
+PA_FRAME_W, PA_FRAME_H = 16, 32  # pixel-agents frame dimensions
+
+
+def make_floor_tile(out_path):
+    """16×16px wooden floor tile that tiles seamlessly."""
+    img = Image.new('RGBA', (16, 16), (0, 0, 0, 0))
+
+    base  = rgb('#8B6338')
+    light = rgb('#9B7348')
+    dark  = rgb('#6B4320')
+    grain = rgb('#7A5228')
+
+    for y in range(16):
+        for x in range(16):
+            img.putpixel((x, y), base)
+
+    # Plank edge lines
+    for x in range(16):
+        img.putpixel((x, 0),  dark)
+        img.putpixel((x, 8),  dark)
+        img.putpixel((x, 15), dark)
+
+    # Wood grain
+    for x, ys in [(3, range(1, 8)), (10, range(1, 8)), (5, range(9, 15)), (12, range(9, 15))]:
+        for y in ys:
+            img.putpixel((x, y), grain)
+
+    # Highlight strips
+    for x in range(1, 7):
+        img.putpixel((x, 1), light)
+    for x in range(9, 15):
+        img.putpixel((x, 9), light)
+
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    img.save(out_path)
+    print(f"  {out_path}  (16×16)")
+
+
+def make_pa_npc(pal, out_path):
+    """Pixel-agents NPC: 112×96 (7 frames × 3 dir rows, 16×32 per frame).
+    Row 0=DOWN, 1=UP, 2=RIGHT.  LEFT is mirrored RIGHT at draw time."""
+    sheet_w = PA_FRAME_W * 7   # 112
+    sheet_h = PA_FRAME_H * 3   # 96
+    img = Image.new('RGBA', (sheet_w, sheet_h), T)
+
+    def px(fc, dr, x, y, key):
+        cx = fc * PA_FRAME_W + x
+        cy = dr * PA_FRAME_H + y
+        if 0 <= cx < sheet_w and 0 <= cy < sheet_h:
+            img.putpixel((cx, cy), rgb(pal[key]))
+
+    def fill(fc, dr, xs, ys, key):
+        for y in ys:
+            for x in xs:
+                px(fc, dr, x, y, key)
+
+    # ── head shapes ───────────────────────────────────────────────────────────
+
+    def head_down(fc, dr):
+        fill(fc, dr, range(5, 11), range(3, 6), 'H')   # hair top
+        fill(fc, dr, [5, 10], range(6, 11), 'H')        # hair sides
+        fill(fc, dr, range(6, 10), range(6, 11), 'F')   # face
+        fill(fc, dr, range(5, 11), [11], 'H')            # chin
+
+    def head_up(fc, dr):
+        fill(fc, dr, range(5, 11), range(3, 12), 'H')   # solid hair block
+
+    def head_right(fc, dr):
+        fill(fc, dr, range(5, 12), range(3, 6), 'H')    # hair top
+        fill(fc, dr, range(5, 9), range(6, 11), 'F')    # face (left portion)
+        fill(fc, dr, [10, 11], range(4, 11), 'H')        # right hair edge
+        fill(fc, dr, range(5, 12), [11], 'H')            # chin
+
+    # ── body + legs ───────────────────────────────────────────────────────────
+
+    def body(fc, dr):
+        fill(fc, dr, range(7, 9), range(12, 14), 'F')   # neck
+        fill(fc, dr, range(4, 12), range(14, 23), 'T')  # torso
+        fill(fc, dr, [3, 4],   range(15, 22), 'A')       # left arm
+        fill(fc, dr, [11, 12], range(15, 22), 'A')       # right arm
+
+    # 7-frame walk cycle: neutral, L-fwd, L-peak, neutral, R-fwd, R-peak, neutral
+    WALK_STEPS = [
+        (range(5, 8), range(24, 32), range(9, 12), range(24, 32)),  # 0 neutral
+        (range(5, 8), range(22, 31), range(9, 12), range(25, 32)),  # 1 L-fwd
+        (range(5, 8), range(20, 29), range(9, 12), range(26, 32)),  # 2 L-peak
+        (range(5, 8), range(24, 32), range(9, 12), range(24, 32)),  # 3 neutral
+        (range(5, 8), range(25, 32), range(9, 12), range(22, 31)),  # 4 R-fwd
+        (range(5, 8), range(26, 32), range(9, 12), range(20, 29)),  # 5 R-peak
+        (range(5, 8), range(24, 32), range(9, 12), range(24, 32)),  # 6 neutral
+    ]
+
+    def legs(fc, dr, step):
+        lx, lys, rx, rys = WALK_STEPS[step]
+        fill(fc, dr, lx, lys, 'P')
+        fill(fc, dr, rx, rys, 'P')
+
+    # ── assemble ──────────────────────────────────────────────────────────────
+
+    head_fns = [head_down, head_up, head_right]
+    for dir_row, head_fn in enumerate(head_fns):
+        for frame_col in range(7):
+            head_fn(frame_col, dir_row)
+            body(frame_col, dir_row)
+            legs(frame_col, dir_row, frame_col)
+
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    img.save(out_path)
+    print(f"  {out_path}  ({sheet_w}×{sheet_h})")
+
+
 # ── run ───────────────────────────────────────────────────────────────────────
 
 os.makedirs('sprites', exist_ok=True)
 
-print("Generating NPC sprite sheets...")
+print("Generating legacy NPC sprite sheets (sprites/)...")
 for i, pal in enumerate(PALETTES):
     make_sheet(pal, f'sprites/npc-{i+1}.png')
 
-print("\nGenerating furniture sprites...")
+print("\nGenerating legacy furniture sprites (sprites/)...")
 make_bookshelf('sprites/bookshelf.png')
 make_plant('sprites/plant.png')
 make_wall_art('sprites/wall-art.png')
+
+print("\nGenerating pixel-agents assets (assets/)...")
+make_floor_tile('assets/floor_0.png')
+make_pa_npc(PALETTES[0], 'assets/characters/char_0.png')
 
 print("\nAll done!")
