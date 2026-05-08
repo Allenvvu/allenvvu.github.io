@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pixel Office — Admin</title>
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <div id="canvas-wrap">
+    <canvas id="scene"></canvas>
+    <div id="selection-toolbar">
+      <button id="rotate-btn-overlay">↻</button>
+      <button id="delete-btn-overlay">✕</button>
+    </div>
+  </div>
+
+  <div id="sidebar">
+    <h2>Tiles</h2>
+    <button class="tool-btn active" data-tool="floor">Floor</button>
+    <button class="tool-btn" data-tool="wall">Wall</button>
+    <button class="tool-btn" data-tool="void">Void</button>
+
+    <hr class="sep">
+    <h2>Furniture</h2>
+    <button class="tool-btn" data-tool="desk">Desk</button>
+
+    <div id="variant-section" hidden>
+      <button id="variant-btn">DESK_FRONT</button>
+    </div>
+
+    <hr class="sep">
+    <button class="action-btn" id="save-btn">Save</button>
+    <button class="action-btn" id="reset-btn">Reset</button>
+    <a id="scene-link" href="index.html">← View Scene</a>
+  </div>
+
+  <script type="module" src="js/adminMain.js"></script>
+</body>
+</html>
