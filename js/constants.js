@@ -12,5 +12,7 @@ export const TileType = Object.freeze({ WALL: 0, FLOOR: 1, VOID: 255 });
 export const CharacterState = Object.freeze({ IDLE: 'idle', WALK: 'walk' });
 export const Direction = Object.freeze({ DOWN: 0, RIGHT: 1, UP: 2, LEFT: 3 });
 
-// Pixel x-offset of direction's frame 0 in the 384×32 character strip
-export const DIR_SPRITE_OFFSET = Object.freeze({ 0: 0, 1: 96, 2: 192, 3: 288 });
+// Pixel x-offset of direction's frame 0 in the actual 766×33 character strip.
+// Frames are 16px wide but spaced 32px apart (16px gap between each), with a 5px leading offset.
+export const DIR_SPRITE_OFFSET = Object.freeze({ 0: 5, 1: 199, 2: 391, 3: 584 });
+export const CHAR_FRAME_STRIDE = 32;

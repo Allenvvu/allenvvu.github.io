@@ -1,7 +1,7 @@
 import {
   TILE_SIZE, WALK_SPEED_PX_PER_SEC, WALK_FRAME_DURATION_SEC,
   WANDER_PAUSE_MIN_SEC, WANDER_PAUSE_MAX_SEC,
-  CharacterState, Direction, DIR_SPRITE_OFFSET,
+  CharacterState, Direction, DIR_SPRITE_OFFSET, CHAR_FRAME_STRIDE,
 } from './constants.js';
 import { findPath, getWalkableTiles } from './tileMap.js';
 
@@ -24,7 +24,7 @@ export function createCharacter(col, row) {
 /** Returns the pixel x-offset of the character's current frame in the sprite strip */
 export function getFrameSrcX(ch) {
   const frameIndex = ch.state === CharacterState.WALK ? ch.frame : 0;
-  return DIR_SPRITE_OFFSET[ch.dir] + frameIndex * 16;
+  return DIR_SPRITE_OFFSET[ch.dir] + frameIndex * CHAR_FRAME_STRIDE;
 }
 
 export function updateCharacter(ch, dt, tileMap, blockedTiles) {
