@@ -16,15 +16,17 @@ export function runTests() {
   assert(!isWalkable(-1, 0, map, none), 'out-of-bounds col is not walkable');
   assert(!isWalkable(0, -1, map, none), 'out-of-bounds row is not walkable');
   assert(!isWalkable(1, 1, map, new Set(['1,1'])), 'blocked tile is not walkable');
+  assert(!isWalkable(1, 1, [[TileType.VOID]], none), 'void tile is not walkable');
 
   const walkable = getWalkableTiles(map, none);
   assertEqual(walkable, [{ col: 1, row: 1 }], 'only center tile is walkable');
 
   // 5-tile straight corridor: row=1, cols 1-5 are floor
+  const W = TileType.WALL, F = TileType.FLOOR;
   const corridor = [
-    [0, 0, 0, 0, 0, 0, 0],
-    [0, 1, 1, 1, 1, 1, 0],
-    [0, 0, 0, 0, 0, 0, 0],
+    [W, W, W, W, W, W, W],
+    [W, F, F, F, F, F, W],
+    [W, W, W, W, W, W, W],
   ];
   const path = findPath(1, 1, 5, 1, corridor, none);
   assertEqual(path, [
