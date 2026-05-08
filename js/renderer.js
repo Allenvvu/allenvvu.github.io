@@ -60,9 +60,21 @@ export function renderFrame(ctx, layout, furnitureInstances, character, charImg,
     const fw = Math.round(f.variant.w * zoom);
     const fh = Math.round(f.variant.h * zoom);
     const fimg = f.img;
+    const mirror = !!f.variant.mirror;
     drawables.push({
       zY: (f.row + f.variant.footprintH) * TILE_SIZE,
-      draw: (c) => { c.imageSmoothingEnabled = false; c.drawImage(fimg, fx, fy, fw, fh); },
+      draw: (c) => {
+        c.imageSmoothingEnabled = false;
+        if (mirror) {
+          c.save();
+          c.translate(fx + fw, fy);
+          c.scale(-1, 1);
+          c.drawImage(fimg, 0, 0, fw, fh);
+          c.restore();
+        } else {
+          c.drawImage(fimg, fx, fy, fw, fh);
+        }
+      },
     });
   }
 
