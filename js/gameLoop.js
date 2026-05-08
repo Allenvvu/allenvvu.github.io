@@ -19,7 +19,6 @@ export function startGameLoop(canvas, callbacks) {
     const dt = lastTime === 0 ? 0 : Math.min((time - lastTime) / 1000, MAX_DELTA_TIME_SEC);
     lastTime = time;
     callbacks.update(dt);
-    ctx.imageSmoothingEnabled = false;
     callbacks.render(ctx);
     rafId = requestAnimationFrame(frame);
   };
