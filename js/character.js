@@ -31,6 +31,7 @@ export function updateCharacter(ch, dt, tileMap, blockedTiles) {
   ch.frameTimer += dt;
 
   if (ch.state === CharacterState.IDLE) {
+    ch.frameTimer = 0;
     ch.frame = 0;
     ch.wanderTimer -= dt;
     if (ch.wanderTimer <= 0) {
