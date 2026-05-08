@@ -54,4 +54,29 @@ export function runTests() {
   assertEqual(unknownInstances.length, 1, 'unknown furniture still included in result');
   assert(unknownInstances[0].variant === null, 'unknown furniture has null variant');
   assert(unknownInstances[0].img === null, 'unknown furniture has null img');
+
+  // buildFurnitureInstances: mirror:true on variant flows through to instance
+  const mirrorCatalog = [{
+    id: 'SOFA',
+    label: 'Sofa',
+    variants: [
+      { id: 'SOFA_FRONT',       file: '', w: 32, h: 16, footprintW: 2, footprintH: 1 },
+      { id: 'SOFA_SIDE',        file: '', w: 16, h: 32, footprintW: 1, footprintH: 2 },
+      { id: 'SOFA_BACK',        file: '', w: 32, h: 16, footprintW: 2, footprintH: 1 },
+      { id: 'SOFA_SIDE_MIRROR', file: '', w: 16, h: 32, footprintW: 1, footprintH: 2, mirror: true },
+    ],
+  }];
+  const mirrorFurniture = [{ uid: 'm1', type: 'SOFA', variantId: 'SOFA_SIDE_MIRROR', col: 0, row: 0 }];
+  const mirrorInstances = buildFurnitureInstances(mirrorFurniture, mirrorCatalog, {});
+  assert(mirrorInstances[0].variant.mirror === true, 'mirror variant: variant.mirror is true');
+
+  // buildBlockedTiles: single-tile item (BIN, footprint 1×1) blocks exactly 1 tile
+  const binCatalog = [{
+    id: 'BIN', label: 'Bin',
+    variants: [{ id: 'BIN', file: '', w: 16, h: 16, footprintW: 1, footprintH: 1 }],
+  }];
+  const binFurniture = [{ uid: 'b1', type: 'BIN', variantId: 'BIN', col: 3, row: 7 }];
+  const binBlocked = buildBlockedTiles(binFurniture, binCatalog);
+  assertEqual(binBlocked.size, 1, 'BIN blocks exactly 1 tile');
+  assert(binBlocked.has('3,7'), 'BIN blocks (3,7)');
 }
