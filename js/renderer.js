@@ -30,7 +30,7 @@ export function computeOffset(canvasWidth, canvasHeight, cols, rows, zoom) {
  * @param {HTMLImageElement|null} charImg
  * @param {number} zoom
  */
-export function renderFrame(ctx, layout, furnitureInstances, character, charImg, zoom) {
+export function renderFrame(ctx, layout, furnitureInstances, character, charImg, zoom, floorImgs = null) {
   const { cols, rows, tileMap } = layout;
   const cw = ctx.canvas.width;
   const ch = ctx.canvas.height;
@@ -45,8 +45,15 @@ export function renderFrame(ctx, layout, furnitureInstances, character, charImg,
     for (let c = 0; c < cols; c++) {
       const tile = tileMap[r][c];
       if (tile === TileType.VOID) continue;
-      ctx.fillStyle = tile === TileType.WALL ? WALL_COLOR : FLOOR_COLOR;
-      ctx.fillRect(offsetX + c * s, offsetY + r * s, s, s);
+      if (tile === TileType.WALL) {
+        ctx.fillStyle = WALL_COLOR;
+        ctx.fillRect(offsetX + c * s, offsetY + r * s, s, s);
+      } else if (floorImgs?.[tile]) {
+        ctx.drawImage(floorImgs[tile], offsetX + c * s, offsetY + r * s, s, s);
+      } else {
+        ctx.fillStyle = FLOOR_COLOR;
+        ctx.fillRect(offsetX + c * s, offsetY + r * s, s, s);
+      }
     }
   }
 

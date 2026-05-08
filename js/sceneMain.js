@@ -1,4 +1,4 @@
-import { loadCatalog, loadFurnitureSprites } from './furnitureLoader.js';
+import { loadCatalog, loadFurnitureSprites, loadAllFloorTiles } from './furnitureLoader.js';
 import { loadLayout, buildTileMap, buildBlockedTiles, buildFurnitureInstances } from './layoutStore.js';
 import { createCharacter, updateCharacter } from './character.js';
 import { renderFrame, computeZoom } from './renderer.js';
@@ -10,18 +10,22 @@ async function main() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 
-  const [catalog, layout] = await Promise.all([loadCatalog(), loadLayout()]);
+  const [catalog, rawLayout] = await Promise.all([loadCatalog(), loadLayout()]);
 
   const charImg = new Image();
   charImg.src = 'assets/Character Model.png';
   await new Promise(r => { charImg.onload = r; charImg.onerror = r; });
 
-  const furnitureSprites = await loadFurnitureSprites(catalog);
+  const [furnitureSprites, initialFloorImgs] = await Promise.all([
+    loadFurnitureSprites(catalog),
+    loadAllFloorTiles(),
+  ]);
 
-  const tileMap = buildTileMap(layout);
-  const blockedTiles = buildBlockedTiles(layout.furniture, catalog);
-  const furnitureInstances = buildFurnitureInstances(layout.furniture, catalog, furnitureSprites);
-
+  let layout = rawLayout;
+  let tileMap = buildTileMap(layout);
+  let blockedTiles = buildBlockedTiles(layout.furniture, catalog);
+  let furnitureInstances = buildFurnitureInstances(layout.furniture, catalog, furnitureSprites);
+  let floorImgs = initialFloorImgs;
   let zoom = computeZoom(canvas.width, canvas.height, layout.cols, layout.rows);
 
   const walkable = getWalkableTiles(tileMap, blockedTiles);
@@ -32,7 +36,19 @@ async function main() {
 
   startGameLoop(canvas, {
     update: (dt) => updateCharacter(character, dt, tileMap, blockedTiles),
-    render: (ctx) => renderFrame(ctx, { cols: layout.cols, rows: layout.rows, tileMap }, furnitureInstances, character, charImg, zoom),
+    render: (ctx) => renderFrame(ctx, { cols: layout.cols, rows: layout.rows, tileMap }, furnitureInstances, character, charImg, zoom, floorImgs),
+  });
+
+  window.addEventListener('storage', (e) => {
+    if (e.key !== 'pixel-office-layout' || !e.newValue) return;
+    try {
+      const newLayout = JSON.parse(e.newValue);
+      layout = newLayout;
+      tileMap = buildTileMap(newLayout);
+      blockedTiles = buildBlockedTiles(newLayout.furniture, catalog);
+      furnitureInstances = buildFurnitureInstances(newLayout.furniture, catalog, furnitureSprites);
+      zoom = computeZoom(canvas.width, canvas.height, newLayout.cols, newLayout.rows);
+    } catch { /* malformed JSON — ignore */ }
   });
 
   window.addEventListener('resize', () => {

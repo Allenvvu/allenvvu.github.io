@@ -1,3 +1,22 @@
+export function loadFloorTile(name) {
+  return new Promise(resolve => {
+    if (!name) { resolve(null); return; }
+    const img = new Image();
+    img.src = `assets/floor/${name}.png`;
+    img.onload = () => resolve(img);
+    img.onerror = () => { console.warn(`Failed to load floor tile: ${name}`); resolve(null); };
+  });
+}
+
+export async function loadAllFloorTiles() {
+  const entries = [[1, 'wooden'], [2, 'white'], [3, 'gray']];
+  const result = {};
+  await Promise.all(entries.map(([tileVal, name]) =>
+    loadFloorTile(name).then(img => { result[tileVal] = img; })
+  ));
+  return result;
+}
+
 export async function loadCatalog() {
   const res = await fetch('data/catalog.json');
   if (!res.ok) throw new Error(`Failed to load catalog: ${res.status}`);

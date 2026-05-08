@@ -1,7 +1,18 @@
-import { loadCatalog, loadFurnitureSprites } from './furnitureLoader.js';
+import { loadCatalog, loadFurnitureSprites, loadAllFloorTiles } from './furnitureLoader.js';
 import { loadLayout, saveLayout, resetLayout, buildTileMap, buildBlockedTiles, buildFurnitureInstances } from './layoutStore.js';
 import { renderFrame, computeZoom, pixelToTile, computeOffset } from './renderer.js';
 import { TileType, TILE_SIZE } from './constants.js';
+
+const FLOOR_NAME_TO_TYPE = { wooden: TileType.FLOOR, white: TileType.FLOOR_WHITE, gray: TileType.FLOOR_GRAY };
+function isFloorTile(v) { return v === TileType.FLOOR || v === TileType.FLOOR_WHITE || v === TileType.FLOOR_GRAY; }
+
+function migrateLayout(layout) {
+  if (!layout.floorTile || layout.floorTile === 'wooden') { delete layout.floorTile; return layout; }
+  const newType = FLOOR_NAME_TO_TYPE[layout.floorTile];
+  if (newType) layout.tiles = layout.tiles.map(t => t === TileType.FLOOR ? newType : t);
+  delete layout.floorTile;
+  return layout;
+}
 
 // ── State ────────────────────────────────────────────────────
 
@@ -14,6 +25,8 @@ const state = {
   furnitureInstances: null,
   zoom: 1,
   activeTool: 'floor',
+  floorImgs: null,
+  activeFloorType: TileType.FLOOR,
   activeItemId: 'DESK',
   activeVariantIdx: 0,
   isPainting: false,
@@ -33,6 +46,7 @@ const deleteBtn = document.getElementById('delete-btn-overlay');
 const variantBtn = document.getElementById('variant-btn');
 const variantSection = document.getElementById('variant-section');
 const furnitureTypeSelect = document.getElementById('furniture-type');
+const floorTileSelect = document.getElementById('floor-tile-select');
 
 // ── Helpers ──────────────────────────────────────────────────
 
@@ -64,7 +78,7 @@ function canPlaceAt(col, row, variant, itemId = state.activeItemId) {
       if (category === 'wall') {
         if (tileVal !== TileType.WALL) return false;
       } else {
-        if (tileVal !== TileType.FLOOR) return false;
+        if (!isFloorTile(tileVal)) return false;
       }
       if (state.blockedTiles.has(`${c},${r}`)) return false;
     }
@@ -176,7 +190,7 @@ function renderOverlays() {
 }
 
 function render() {
-  renderFrame(ctx, { cols: state.layout.cols, rows: state.layout.rows, tileMap: state.tileMap }, state.furnitureInstances, null, null, state.zoom);
+  renderFrame(ctx, { cols: state.layout.cols, rows: state.layout.rows, tileMap: state.tileMap }, state.furnitureInstances, null, null, state.zoom, state.floorImgs);
   renderOverlays();
   updateSelectionToolbar();
   state.needsRender = false;
@@ -193,7 +207,7 @@ function rafLoop() {
 
 function paintTile(col, row) {
   if (col < 0 || col >= state.layout.cols || row < 0 || row >= state.layout.rows) return;
-  const tileVal = state.activeTool === 'floor' ? TileType.FLOOR
+  const tileVal = state.activeTool === 'floor' ? state.activeFloorType
     : state.activeTool === 'wall' ? TileType.WALL
     : TileType.VOID;
   state.layout.tiles[row * state.layout.cols + col] = tileVal;
@@ -296,6 +310,7 @@ document.querySelectorAll('.tool-btn').forEach(btn => {
     state.activeTool = btn.dataset.tool;
     state.selectedUid = null;
     variantSection.hidden = state.activeTool !== 'furniture';
+    floorTileSelect.hidden = state.activeTool !== 'floor';
     state.needsRender = true;
   });
 });
@@ -313,6 +328,11 @@ furnitureTypeSelect.addEventListener('change', () => {
   const item = state.catalog.find(i => i.id === state.activeItemId);
   variantBtn.textContent = item.variants[0].id;
   variantBtn.hidden = item.variants.length <= 1;
+  state.needsRender = true;
+});
+
+floorTileSelect.addEventListener('change', () => {
+  state.activeFloorType = FLOOR_NAME_TO_TYPE[floorTileSelect.value] ?? TileType.FLOOR;
   state.needsRender = true;
 });
 
@@ -341,8 +361,12 @@ async function main() {
   canvas.width = canvas.parentElement.offsetWidth;
   canvas.height = window.innerHeight;
 
-  const [catalog, layout] = await Promise.all([loadCatalog(), loadLayout()]);
-  const furnitureSprites = await loadFurnitureSprites(catalog);
+  const [catalog, rawLayout] = await Promise.all([loadCatalog(), loadLayout()]);
+  const layout = migrateLayout(rawLayout);
+  const [furnitureSprites, floorImgs] = await Promise.all([
+    loadFurnitureSprites(catalog),
+    loadAllFloorTiles(),
+  ]);
 
   state.catalog = catalog;
 
@@ -367,6 +391,7 @@ async function main() {
   const initialItem = catalog.find(i => i.id === state.activeItemId);
   variantBtn.textContent = initialItem.variants[0].id;
   variantBtn.hidden = initialItem.variants.length <= 1;
+  state.floorImgs = floorImgs;
   state.furnitureSprites = furnitureSprites;
   state.layout = layout;
   state.zoom = computeZoom(canvas.width, canvas.height, layout.cols, layout.rows);

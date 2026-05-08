@@ -2,6 +2,7 @@
   "version": 1,
   "cols": 32,
   "rows": 18,
+  "floorTile": "wooden",
   "tiles": [
     0,
     0,
