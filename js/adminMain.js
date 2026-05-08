@@ -14,6 +14,7 @@ const state = {
   furnitureInstances: null,
   zoom: 1,
   activeTool: 'floor',
+  activeItemId: 'DESK',
   activeVariantIdx: 0,
   isPainting: false,
   ghostCol: -1,
@@ -31,6 +32,7 @@ const rotateBtn = document.getElementById('rotate-btn-overlay');
 const deleteBtn = document.getElementById('delete-btn-overlay');
 const variantBtn = document.getElementById('variant-btn');
 const variantSection = document.getElementById('variant-section');
+const furnitureTypeSelect = document.getElementById('furniture-type');
 
 // ── Helpers ──────────────────────────────────────────────────
 
@@ -46,8 +48,8 @@ function getOffset() {
 }
 
 function getActiveVariant() {
-  const desk = state.catalog[0];
-  return desk.variants[state.activeVariantIdx];
+  const item = state.catalog.find(i => i.id === state.activeItemId);
+  return item.variants[state.activeVariantIdx];
 }
 
 function canPlaceAt(col, row, variant) {
@@ -117,7 +119,7 @@ function renderOverlays() {
   ctx.restore();
 
   // Ghost preview
-  if (state.activeTool === 'desk' && state.ghostCol >= 0 && state.ghostRow >= 0) {
+  if (state.activeTool === 'furniture' && state.ghostCol >= 0 && state.ghostRow >= 0) {
     const variant = getActiveVariant();
     const img = state.furnitureSprites[variant.id];
     if (img) {
@@ -186,10 +188,10 @@ function paintTile(col, row) {
 
 // ── Furniture actions ─────────────────────────────────────────
 
-function placeDeskAt(col, row) {
+function placeFurnitureAt(col, row) {
   const variant = getActiveVariant();
   if (!canPlaceAt(col, row, variant)) return;
-  state.layout.furniture.push({ uid: uid(), type: 'DESK', variantId: variant.id, col, row });
+  state.layout.furniture.push({ uid: uid(), type: state.activeItemId, variantId: variant.id, col, row });
   rebuildLayout();
 }
 
@@ -236,8 +238,8 @@ function rotateSelected() {
 
 canvas.addEventListener('mousedown', (e) => {
   const { col, row } = canvasToTile(e);
-  if (state.activeTool === 'desk') {
-    placeDeskAt(col, row);
+  if (state.activeTool === 'furniture') {
+    placeFurnitureAt(col, row);
   } else if (['floor', 'wall', 'void'].includes(state.activeTool)) {
     state.isPainting = true;
     paintTile(col, row);
@@ -266,7 +268,7 @@ window.addEventListener('mouseup', () => { state.isPainting = false; });
 
 canvas.addEventListener('click', (e) => {
   if (['floor', 'wall', 'void'].includes(state.activeTool)) return;
-  if (state.activeTool === 'desk') return;
+  if (state.activeTool === 'furniture') return;
   const { col, row } = canvasToTile(e);
   selectFurnitureAt(col, row);
 });
@@ -279,15 +281,24 @@ document.querySelectorAll('.tool-btn').forEach(btn => {
     btn.classList.add('active');
     state.activeTool = btn.dataset.tool;
     state.selectedUid = null;
-    variantSection.hidden = state.activeTool !== 'desk';
+    variantSection.hidden = state.activeTool !== 'furniture';
     state.needsRender = true;
   });
 });
 
 variantBtn.addEventListener('click', () => {
-  const desk = state.catalog[0];
-  state.activeVariantIdx = (state.activeVariantIdx + 1) % desk.variants.length;
-  variantBtn.textContent = desk.variants[state.activeVariantIdx].id;
+  const item = state.catalog.find(i => i.id === state.activeItemId);
+  state.activeVariantIdx = (state.activeVariantIdx + 1) % item.variants.length;
+  variantBtn.textContent = item.variants[state.activeVariantIdx].id;
+  state.needsRender = true;
+});
+
+furnitureTypeSelect.addEventListener('change', () => {
+  state.activeItemId = furnitureTypeSelect.value;
+  state.activeVariantIdx = 0;
+  const item = state.catalog.find(i => i.id === state.activeItemId);
+  variantBtn.textContent = item.variants[0].id;
+  variantBtn.hidden = item.variants.length <= 1;
   state.needsRender = true;
 });
 
@@ -320,7 +331,17 @@ async function main() {
   const furnitureSprites = await loadFurnitureSprites(catalog);
 
   state.catalog = catalog;
-  variantBtn.textContent = catalog[0].variants[0].id;
+
+  for (const item of catalog) {
+    const opt = document.createElement('option');
+    opt.value = item.id;
+    opt.textContent = item.label;
+    furnitureTypeSelect.appendChild(opt);
+  }
+
+  const initialItem = catalog.find(i => i.id === state.activeItemId);
+  variantBtn.textContent = initialItem.variants[0].id;
+  variantBtn.hidden = initialItem.variants.length <= 1;
   state.furnitureSprites = furnitureSprites;
   state.layout = layout;
   state.zoom = computeZoom(canvas.width, canvas.height, layout.cols, layout.rows);
