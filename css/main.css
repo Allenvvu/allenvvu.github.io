@@ -1,0 +1,27 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #1a1a2e;
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+}
+
+#scene {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+}
+
+#admin-link {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  color: rgba(255,255,255,0.4);
+  font-family: monospace;
+  font-size: 0.75rem;
+  text-decoration: none;
+  letter-spacing: 0.05em;
+}
+
+#admin-link:hover { color: rgba(255,255,255,0.8); }
