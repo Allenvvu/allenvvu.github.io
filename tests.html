@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tests</title>
+  <style>
+    body { font-family: monospace; padding: 1rem; background: #111; color: #eee; }
+    .pass { color: #4c4; }
+    .fail { color: #f44; font-weight: bold; }
+    h2 { color: #aaa; border-bottom: 1px solid #333; }
+  </style>
+</head>
+<body>
+  <h1>Test Results</h1>
+  <div id="output"></div>
+  <script type="module">
+    import { getResults } from './js/tests/run.js';
+    import { runTests as tileMapTests } from './js/tests/tileMap.test.js';
+
+    tileMapTests();
+
+    const out = document.getElementById('output');
+    const results = getResults();
+    const passed = results.filter(r => r.pass).length;
+    out.innerHTML = `<p>${passed}/${results.length} passed</p>` +
+      results.map(r =>
+        `<div class="${r.pass ? 'pass' : 'fail'}">${r.pass ? '✓' : '✗'} ${r.msg}</div>`
+      ).join('');
+  </script>
+</body>
+</html>
