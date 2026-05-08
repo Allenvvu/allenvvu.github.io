@@ -17,9 +17,11 @@
     import { getResults } from './js/tests/run.js';
     import { runTests as tileMapTests } from './js/tests/tileMap.test.js';
     import { runTests as characterTests } from './js/tests/character.test.js';
+    import { runTests as layoutStoreTests } from './js/tests/layoutStore.test.js';
 
     tileMapTests();
     characterTests();
+    layoutStoreTests();
 
     const out = document.getElementById('output');
     const results = getResults();
