@@ -22,7 +22,7 @@ async function main() {
   const blockedTiles = buildBlockedTiles(layout.furniture, catalog);
   const furnitureInstances = buildFurnitureInstances(layout.furniture, catalog, furnitureSprites);
 
-  const zoom = computeZoom(canvas.width, canvas.height, layout.cols, layout.rows);
+  let zoom = computeZoom(canvas.width, canvas.height, layout.cols, layout.rows);
 
   const walkable = getWalkableTiles(tileMap, blockedTiles);
   const start = walkable.length > 0
@@ -38,6 +38,7 @@ async function main() {
   window.addEventListener('resize', () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
+    zoom = computeZoom(canvas.width, canvas.height, layout.cols, layout.rows);
   });
 }
 
