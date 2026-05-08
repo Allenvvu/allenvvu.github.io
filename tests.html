@@ -16,8 +16,10 @@
   <script type="module">
     import { getResults } from './js/tests/run.js';
     import { runTests as tileMapTests } from './js/tests/tileMap.test.js';
+    import { runTests as characterTests } from './js/tests/character.test.js';
 
     tileMapTests();
+    characterTests();
 
     const out = document.getElementById('output');
     const results = getResults();
