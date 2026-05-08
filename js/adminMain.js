@@ -52,12 +52,20 @@ function getActiveVariant() {
   return item.variants[state.activeVariantIdx];
 }
 
-function canPlaceAt(col, row, variant) {
+function canPlaceAt(col, row, variant, itemId = state.activeItemId) {
+  const item = state.catalog.find(i => i.id === itemId);
+  const category = item ? item.category : 'desks';
   for (let dr = 0; dr < variant.footprintH; dr++) {
     for (let dc = 0; dc < variant.footprintW; dc++) {
       const c = col + dc, r = row + dr;
       if (r < 0 || r >= state.layout.rows || c < 0 || c >= state.layout.cols) return false;
-      if (state.layout.tiles[r * state.layout.cols + c] !== TileType.FLOOR) return false;
+      if (category === 'items') continue;
+      const tileVal = state.layout.tiles[r * state.layout.cols + c];
+      if (category === 'wall') {
+        if (tileVal !== TileType.WALL) return false;
+      } else {
+        if (tileVal !== TileType.FLOOR) return false;
+      }
       if (state.blockedTiles.has(`${c},${r}`)) return false;
     }
   }
@@ -131,7 +139,13 @@ function renderOverlays() {
       ctx.save();
       ctx.globalAlpha = 0.5;
       ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(img, gx, gy, gw, gh);
+      if (variant.mirror) {
+        ctx.translate(gx + gw, gy);
+        ctx.scale(-1, 1);
+        ctx.drawImage(img, 0, 0, gw, gh);
+      } else {
+        ctx.drawImage(img, gx, gy, gw, gh);
+      }
       ctx.restore();
       ctx.save();
       ctx.globalAlpha = 0.25;
@@ -227,7 +241,7 @@ function rotateSelected() {
   );
   const prevBlocked = state.blockedTiles;
   state.blockedTiles = othersBlocked;
-  const fits = canPlaceAt(f.col, f.row, nextVariant);
+  const fits = canPlaceAt(f.col, f.row, nextVariant, f.type);
   state.blockedTiles = prevBlocked;
   if (!fits) return;
   f.variantId = nextVariant.id;
@@ -332,11 +346,22 @@ async function main() {
 
   state.catalog = catalog;
 
-  for (const item of catalog) {
-    const opt = document.createElement('option');
-    opt.value = item.id;
-    opt.textContent = item.label;
-    furnitureTypeSelect.appendChild(opt);
+  const CATEGORIES = [
+    { id: 'desks',  label: 'Desks' },
+    { id: 'chairs', label: 'Chairs' },
+    { id: 'wall',   label: 'Wall' },
+    { id: 'items',  label: 'Items' },
+  ];
+  for (const cat of CATEGORIES) {
+    const group = document.createElement('optgroup');
+    group.label = cat.label;
+    for (const item of catalog.filter(i => i.category === cat.id)) {
+      const opt = document.createElement('option');
+      opt.value = item.id;
+      opt.textContent = item.label;
+      group.appendChild(opt);
+    }
+    furnitureTypeSelect.appendChild(group);
   }
 
   const initialItem = catalog.find(i => i.id === state.activeItemId);
