@@ -1,6 +1,5 @@
 import { assert, assertEqual } from './run.js';
-import { buildTileMap, buildBlockedTiles } from '../layoutStore.js';
-import { TileType } from '../constants.js';
+import { buildTileMap, buildBlockedTiles, buildFurnitureInstances } from '../layoutStore.js';
 
 export function runTests() {
   // buildTileMap: 2×2 flat → 2D
@@ -35,5 +34,24 @@ export function runTests() {
   const sideBlocked = buildBlockedTiles(sideF, catalog);
   assertEqual(sideBlocked.size, 4, 'DESK_SIDE blocks 1×4=4 tiles');
   assert(sideBlocked.has('5,2'), 'blocks (5,2)');
+  assert(sideBlocked.has('5,3'), 'blocks (5,3)');
+  assert(sideBlocked.has('5,4'), 'blocks (5,4)');
   assert(sideBlocked.has('5,5'), 'blocks (5,5)');
+
+  // buildFurnitureInstances: happy path
+  const sprites = { DESK_FRONT: 'img-front-stub' };
+  const instances = buildFurnitureInstances(furniture, catalog, sprites);
+  assertEqual(instances.length, 1, 'buildFurnitureInstances returns one instance');
+  assertEqual(instances[0].col, 2, 'instance col preserved');
+  assertEqual(instances[0].variantId, 'DESK_FRONT', 'instance variantId preserved');
+  assert(instances[0].variant !== null, 'instance has variant');
+  assertEqual(instances[0].variant.footprintW, 3, 'instance variant footprintW is 3');
+  assertEqual(instances[0].img, 'img-front-stub', 'instance img is from sprites');
+
+  // buildFurnitureInstances: unknown catalog item → variant and img are null
+  const unknownFurniture = [{ uid: 'z', type: 'UNKNOWN', variantId: 'X', col: 0, row: 0 }];
+  const unknownInstances = buildFurnitureInstances(unknownFurniture, catalog, sprites);
+  assertEqual(unknownInstances.length, 1, 'unknown furniture still included in result');
+  assert(unknownInstances[0].variant === null, 'unknown furniture has null variant');
+  assert(unknownInstances[0].img === null, 'unknown furniture has null img');
 }
