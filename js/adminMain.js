@@ -66,7 +66,8 @@ function canvasToTile(e) {
   const rect = canvas.getBoundingClientRect();
   const px = (e.clientX - rect.left) * (canvas.width / rect.width);
   const py = (e.clientY - rect.top) * (canvas.height / rect.height);
-  return pixelToTile(px, py, getOffset().offsetX, getOffset().offsetY, state.zoom);
+  const { offsetX, offsetY } = getOffset();
+  return pixelToTile(px, py, offsetX, offsetY, state.zoom);
 }
 
 function uid() {
@@ -216,7 +217,18 @@ function rotateSelected() {
   if (!f) return;
   const item = state.catalog.find(c => c.id === f.type);
   const idx = item.variants.findIndex(v => v.id === f.variantId);
-  f.variantId = item.variants[(idx + 1) % item.variants.length].id;
+  const nextVariant = item.variants[(idx + 1) % item.variants.length];
+  // Check if rotated footprint fits (excluding this piece from blocked tiles)
+  const othersBlocked = buildBlockedTiles(
+    state.layout.furniture.filter(x => x.uid !== f.uid),
+    state.catalog
+  );
+  const prevBlocked = state.blockedTiles;
+  state.blockedTiles = othersBlocked;
+  const fits = canPlaceAt(f.col, f.row, nextVariant);
+  state.blockedTiles = prevBlocked;
+  if (!fits) return;
+  f.variantId = nextVariant.id;
   rebuildLayout();
 }
 
@@ -243,12 +255,14 @@ canvas.addEventListener('mousemove', (e) => {
 });
 
 canvas.addEventListener('mouseleave', () => {
+  state.isPainting = false;
   state.ghostCol = -1;
   state.ghostRow = -1;
   state.needsRender = true;
 });
 
 canvas.addEventListener('mouseup', () => { state.isPainting = false; });
+window.addEventListener('mouseup', () => { state.isPainting = false; });
 
 canvas.addEventListener('click', (e) => {
   if (['floor', 'wall', 'void'].includes(state.activeTool)) return;
@@ -306,6 +320,7 @@ async function main() {
   const furnitureSprites = await loadFurnitureSprites(catalog);
 
   state.catalog = catalog;
+  variantBtn.textContent = catalog[0].variants[0].id;
   state.furnitureSprites = furnitureSprites;
   state.layout = layout;
   state.zoom = computeZoom(canvas.width, canvas.height, layout.cols, layout.rows);
