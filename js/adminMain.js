@@ -2,6 +2,9 @@ import { loadCatalog, loadFurnitureSprites, loadAllFloorTiles } from './furnitur
 import { loadLayout, saveLayout, resetLayout, buildTileMap, buildBlockedTiles, buildFurnitureInstances } from './layoutStore.js';
 import { renderFrame, computeZoom, pixelToTile, computeOffset } from './renderer.js';
 import { TileType, TILE_SIZE } from './constants.js';
+import { publishLayout } from './githubPublish.js';
+
+const ADMIN_PASSWORD = 'iloveemma';
 
 const FLOOR_NAME_TO_TYPE = { wooden: TileType.FLOOR, white: TileType.FLOOR_WHITE, gray: TileType.FLOOR_GRAY };
 function isFloorTile(v) { return v === TileType.FLOOR || v === TileType.FLOOR_WHITE || v === TileType.FLOOR_GRAY; }
@@ -208,6 +211,39 @@ function rafLoop() {
   requestAnimationFrame(rafLoop);
 }
 
+// ── Auth gate ─────────────────────────────────────────────────
+
+function initAuth() {
+  const gate = document.getElementById('auth-gate');
+  const passwordInput = document.getElementById('auth-password');
+  const enterBtn = document.getElementById('auth-enter');
+  const authError = document.getElementById('auth-error');
+  const authBox = document.getElementById('auth-box');
+
+  function attempt() {
+    if (passwordInput.value === ADMIN_PASSWORD) {
+      sessionStorage.setItem('admin-authed', '1');
+      gate.classList.add('hidden');
+      main().catch(err => console.error('Admin failed to start:', err));
+    } else {
+      authError.hidden = false;
+      authBox.classList.remove('shake');
+      void authBox.offsetWidth;
+      authBox.classList.add('shake');
+      passwordInput.value = '';
+    }
+  }
+
+  if (sessionStorage.getItem('admin-authed') === '1') {
+    gate.classList.add('hidden');
+    main().catch(err => console.error('Admin failed to start:', err));
+    return;
+  }
+
+  enterBtn.addEventListener('click', attempt);
+  passwordInput.addEventListener('keydown', e => { if (e.key === 'Enter') attempt(); });
+}
+
 // ── Tile painting ────────────────────────────────────────────
 
 function paintTile(col, row) {
@@ -412,4 +448,4 @@ async function main() {
   });
 }
 
-main().catch(err => { console.error('Admin failed to start:', err); });
+initAuth();
