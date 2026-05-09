@@ -4,7 +4,7 @@ import { renderFrame, computeZoom, pixelToTile, computeOffset } from './renderer
 import { TileType, TILE_SIZE } from './constants.js';
 import { publishLayout } from './githubPublish.js';
 
-const ADMIN_PASSWORD = 'iloveemma';
+const ADMIN_PASSWORD = 'iloveemma'; // client-visible by design — PAT is the real credential
 
 const FLOOR_NAME_TO_TYPE = { wooden: TileType.FLOOR, white: TileType.FLOOR_WHITE, gray: TileType.FLOOR_GRAY };
 function isFloorTile(v) { return v === TileType.FLOOR || v === TileType.FLOOR_WHITE || v === TileType.FLOOR_GRAY; }
@@ -388,6 +388,7 @@ deleteBtn.addEventListener('click', deleteSelected);
 rotateBtn.addEventListener('click', rotateSelected);
 
 document.getElementById('save-btn').addEventListener('click', () => {
+  if (!state.layout) return;
   saveLayout(state.layout);
   const btn = document.getElementById('save-btn');
   btn.textContent = 'Saved ✓';
@@ -395,6 +396,7 @@ document.getElementById('save-btn').addEventListener('click', () => {
 });
 
 document.getElementById('reset-btn').addEventListener('click', async () => {
+  if (!state.layout) return;
   if (!confirm('Reset layout to default? This clears all edits.')) return;
   resetLayout();
   const res = await fetch('data/default-layout.json');
