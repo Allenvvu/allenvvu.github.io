@@ -220,8 +220,12 @@ function initAuth() {
   const authError = document.getElementById('auth-error');
   const authBox = document.getElementById('auth-box');
 
+  let started = false;
+
   function attempt() {
+    if (started) return;
     if (passwordInput.value === ADMIN_PASSWORD) {
+      started = true;
       sessionStorage.setItem('admin-authed', '1');
       gate.classList.add('hidden');
       main().catch(err => console.error('Admin failed to start:', err));
