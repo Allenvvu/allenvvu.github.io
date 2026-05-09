@@ -3,6 +3,7 @@ const REPO = 'allenvvu.github.io';
 const FILE_PATH = 'data/default-layout.json';
 
 export async function publishLayout(layout, token) {
+  if (!token) return { ok: false, error: 'No token provided' };
   const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE_PATH}`;
   const headers = {
     'Authorization': `Bearer ${token}`,
@@ -23,7 +24,12 @@ export async function publishLayout(layout, token) {
     return { ok: false, error: `NetworkError: ${e.message}` };
   }
 
-  const content = btoa(unescape(encodeURIComponent(JSON.stringify(layout, null, 2))));
+  let content;
+  try {
+    content = btoa(unescape(encodeURIComponent(JSON.stringify(layout, null, 2))));
+  } catch (e) {
+    return { ok: false, error: `EncodingError: ${e.message}` };
+  }
   try {
     const putRes = await fetch(url, {
       method: 'PUT',

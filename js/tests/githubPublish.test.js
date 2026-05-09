@@ -50,4 +50,19 @@ export async function runTests() {
     assert(r.error === 'Validation Failed', 'publishLayout: error from PUT response message');
     window.fetch = orig;
   }
+
+  // failure: network error on PUT
+  {
+    const orig = window.fetch;
+    let call = 0;
+    window.fetch = async () => {
+      call++;
+      if (call === 1) return { ok: true, json: async () => ({ sha: 'abc123' }) };
+      throw new Error('NetworkError');
+    };
+    const r = await publishLayout({ version: 1 }, 'tok');
+    assert(r.ok === false, 'publishLayout: ok:false on PUT network error');
+    assert(r.error.includes('NetworkError'), 'publishLayout: error includes message on PUT network error');
+    window.fetch = orig;
+  }
 }
