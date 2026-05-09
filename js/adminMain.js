@@ -24,9 +24,9 @@ const state = {
   blockedTiles: null,
   furnitureInstances: null,
   zoom: 1,
-  activeTool: 'floor',
+  activeTool: 'select',
   floorImgs: null,
-  activeFloorType: TileType.FLOOR,
+  activeFloorType: TileType.FLOOR_WHITE,
   activeItemId: 'DESK',
   activeVariantIdx: 0,
   isPainting: false,
@@ -77,6 +77,9 @@ function canPlaceAt(col, row, variant, itemId = state.activeItemId) {
       const tileVal = state.layout.tiles[r * state.layout.cols + c];
       if (category === 'wall') {
         if (tileVal !== TileType.WALL) return false;
+      } else if (category === 'desks') {
+        // top row of footprint may back against a wall tile
+        if (dr === 0 ? (!isFloorTile(tileVal) && tileVal !== TileType.WALL) : !isFloorTile(tileVal)) return false;
       } else {
         if (!isFloorTile(tileVal)) return false;
       }
@@ -146,10 +149,12 @@ function renderOverlays() {
     const img = state.furnitureSprites[variant.id];
     if (img) {
       const valid = canPlaceAt(state.ghostCol, state.ghostRow, variant);
-      const gx = offsetX + state.ghostCol * s;
-      const gy = offsetY + state.ghostRow * s;
       const gw = Math.round(variant.w * state.zoom);
       const gh = Math.round(variant.h * state.zoom);
+      const ghostOffX = variant.centered ? Math.round((variant.footprintW * TILE_SIZE * state.zoom - gw) / 2) : 0;
+      const ghostOffY = variant.centered ? Math.round((variant.footprintH * TILE_SIZE * state.zoom - gh) / 2) : 0;
+      const gx = offsetX + state.ghostCol * s + ghostOffX;
+      const gy = offsetY + state.ghostRow * s + ghostOffY;
       ctx.save();
       ctx.globalAlpha = 0.5;
       ctx.imageSmoothingEnabled = false;

@@ -58,18 +58,47 @@ export function renderFrame(ctx, layout, furnitureInstances, character, charImg,
   }
 
   // Z-sorted drawables: furniture then character, sorted by bottom-edge Y
+  // Items (things placed on desks) must render after the furniture beneath them,
+  // so build a tile→maxZY map from non-item furniture first.
+  const tileMaxZY = new Map();
+  for (const f of furnitureInstances) {
+    if (!f.variant || f.isItem) continue;
+    const fzY = (f.row + f.variant.footprintH) * TILE_SIZE;
+    for (let dr = 0; dr < f.variant.footprintH; dr++) {
+      for (let dc = 0; dc < f.variant.footprintW; dc++) {
+        const key = `${f.col + dc},${f.row + dr}`;
+        const prev = tileMaxZY.get(key);
+        if (prev === undefined || fzY > prev) tileMaxZY.set(key, fzY);
+      }
+    }
+  }
+
   const drawables = [];
 
   for (const f of furnitureInstances) {
     if (!f.img || !f.variant) continue;
-    const fx = offsetX + f.col * s;
-    const fy = offsetY + f.row * s;
     const fw = Math.round(f.variant.w * zoom);
     const fh = Math.round(f.variant.h * zoom);
+    const drawOffX = f.variant.centered ? Math.round((f.variant.footprintW * TILE_SIZE * zoom - fw) / 2) : 0;
+    const drawOffY = f.variant.centered ? Math.round((f.variant.footprintH * TILE_SIZE * zoom - fh) / 2) : 0;
+    const fx = offsetX + f.col * s + drawOffX;
+    const fy = offsetY + f.row * s + drawOffY;
     const fimg = f.img;
     const mirror = !!f.variant.mirror;
+
+    let zY = (f.row + f.variant.footprintH) * TILE_SIZE;
+    if (f.isItem) {
+      for (let dr = 0; dr < f.variant.footprintH; dr++) {
+        for (let dc = 0; dc < f.variant.footprintW; dc++) {
+          const under = tileMaxZY.get(`${f.col + dc},${f.row + dr}`) ?? 0;
+          if (under > zY) zY = under;
+        }
+      }
+      zY += 0.5;
+    }
+
     drawables.push({
-      zY: (f.row + f.variant.footprintH) * TILE_SIZE,
+      zY,
       draw: (c) => {
         c.imageSmoothingEnabled = false;
         if (mirror) {

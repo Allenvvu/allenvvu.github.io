@@ -9,6 +9,15 @@
     ]
   },
   {
+    "id": "DESK_2X4",
+    "label": "Desk 2x4",
+    "category": "desks",
+    "variants": [
+      { "id": "DESK_2X4",      "file": "assets/furniture/DESK_3X2/DESK_3X2.png",      "w": 32, "h": 64, "footprintW": 2, "footprintH": 4 },
+      { "id": "DESK_2X4_SIDE", "file": "assets/furniture/DESK_3X2/DESK_3X2_SIDE.png", "w": 64, "h": 32, "footprintW": 4, "footprintH": 2 }
+    ]
+  },
+  {
     "id": "COFFEE_TABLE",
     "label": "Coffee Table",
     "category": "desks",
@@ -147,6 +156,14 @@
     ]
   },
   {
+    "id": "WINDOW",
+    "label": "Window",
+    "category": "wall",
+    "variants": [
+      { "id": "WINDOW", "file": "assets/furniture/WINDOW/WINDOW.png", "w": 24, "h": 24, "footprintW": 2, "footprintH": 2, "centered": true }
+    ]
+  },
+  {
     "id": "BIN",
     "label": "Bin",
     "category": "items",
@@ -211,6 +228,70 @@
     "category": "items",
     "variants": [
       { "id": "POT", "file": "assets/furniture/POT/POT.png", "w": 16, "h": 16, "footprintW": 1, "footprintH": 1 }
+    ]
+  },
+  {
+    "id": "FRIDGE",
+    "label": "Fridge",
+    "category": "items",
+    "variants": [
+      { "id": "FRIDGE", "file": "assets/furniture/FRIDGE/FRIDGE.png", "w": 32, "h": 48, "footprintW": 2, "footprintH": 3 }
+    ]
+  },
+  {
+    "id": "ESPRESSO_MACHINE",
+    "label": "Espresso Machine",
+    "category": "items",
+    "variants": [
+      { "id": "ESPRESSO_MACHINE", "file": "assets/furniture/ESPRESSO_MACHINE/ESPRESSO_MACHINE.png", "w": 28, "h": 24, "footprintW": 2, "footprintH": 2 }
+    ]
+  },
+  {
+    "id": "GRINDER",
+    "label": "Grinder",
+    "category": "items",
+    "variants": [
+      { "id": "GRINDER", "file": "assets/furniture/GRINDER/GRINDER.png", "w": 15, "h": 28, "footprintW": 1, "footprintH": 2 }
+    ]
+  },
+  {
+    "id": "PURPLE_FLOWER",
+    "label": "Purple Flower",
+    "category": "items",
+    "variants": [
+      { "id": "PURPLE_FLOWER", "file": "assets/furniture/PURPLE_FLOWER/PURPLE_FLOWER.png", "w": 13, "h": 18, "footprintW": 1, "footprintH": 2 }
+    ]
+  },
+  {
+    "id": "RED_FLOWER",
+    "label": "Red Flower",
+    "category": "items",
+    "variants": [
+      { "id": "RED_FLOWER", "file": "assets/furniture/RED_FLOWER/RED_FLOWER.png", "w": 14, "h": 16, "footprintW": 1, "footprintH": 1 }
+    ]
+  },
+  {
+    "id": "CAR",
+    "label": "Car",
+    "category": "items",
+    "variants": [
+      { "id": "CAR", "file": "assets/furniture/CAR/CAR.png", "w": 55, "h": 25, "footprintW": 4, "footprintH": 2 }
+    ]
+  },
+  {
+    "id": "SCULPTURE",
+    "label": "Sculpture",
+    "category": "items",
+    "variants": [
+      { "id": "SCULPTURE", "file": "assets/furniture/SCULPTURE/SCULPTURE.png", "w": 24, "h": 46, "footprintW": 2, "footprintH": 3 }
+    ]
+  },
+  {
+    "id": "ROBOTICS_ARM",
+    "label": "Robotics Arm",
+    "category": "items",
+    "variants": [
+      { "id": "ROBOTICS_ARM", "file": "assets/furniture/ROBOTICS_ARM/ROBOTICS_ARM.png", "w": 40, "h": 27, "footprintW": 3, "footprintH": 2 }
     ]
   }
 ]

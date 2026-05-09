@@ -50,6 +50,6 @@ export function buildFurnitureInstances(furniture, catalog, sprites) {
   return furniture.map(f => {
     const item = catalog.find(c => c.id === f.type);
     const variant = item ? item.variants.find(v => v.id === f.variantId) : null;
-    return { ...f, variant, img: sprites[f.variantId] ?? null };
+    return { ...f, variant, img: sprites[f.variantId] ?? null, isItem: item?.category === 'items' };
   });
 }
