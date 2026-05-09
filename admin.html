@@ -7,6 +7,15 @@
   <link rel="stylesheet" href="css/admin.css">
 </head>
 <body>
+  <div id="auth-gate">
+    <div id="auth-box">
+      <h2>Admin</h2>
+      <input type="password" id="auth-password" placeholder="Password" autofocus>
+      <button id="auth-enter">Enter</button>
+      <p id="auth-error" hidden>Incorrect password</p>
+    </div>
+  </div>
+
   <div id="canvas-wrap">
     <canvas id="scene"></canvas>
     <div id="selection-toolbar">

@@ -109,3 +109,58 @@ body {
 }
 #rotate-btn-overlay { background: rgba(50,120,200,0.9); color: #fff; border-color: #007fd4; }
 #delete-btn-overlay { background: rgba(200,50,50,0.9); color: #fff; border-color: #c00; }
+
+#auth-gate {
+  position: fixed;
+  inset: 0;
+  background: #1a1a2e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+#auth-gate.hidden { display: none; }
+#auth-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 2rem;
+  background: #12122a;
+  border: 1px solid #2a2a4a;
+  border-radius: 4px;
+  min-width: 220px;
+}
+#auth-box h2 {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #666;
+}
+#auth-password {
+  padding: 0.4rem 0.5rem;
+  background: #1e1e3a;
+  border: 1px solid #2a2a4a;
+  color: #eee;
+  font-family: monospace;
+  font-size: 0.85rem;
+  border-radius: 3px;
+}
+#auth-password:focus { outline: none; border-color: #007fd4; }
+#auth-enter {
+  padding: 0.4rem 0.5rem;
+  background: #007fd4;
+  border: none;
+  color: #fff;
+  font-family: monospace;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border-radius: 3px;
+}
+#auth-enter:hover { background: #0070c0; }
+#auth-error { color: #f44; font-size: 0.8rem; }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+#auth-box.shake { animation: shake 0.4s ease; }
