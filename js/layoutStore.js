@@ -5,6 +5,8 @@ export async function loadLayout() {
   if (saved) {
     try { return JSON.parse(saved); } catch { /* fall through to default */ }
   }
+  const published = await fetch('data/published-layout.json');
+  if (published.ok) return published.json();
   const res = await fetch('data/default-layout.json');
   if (!res.ok) throw new Error(`Failed to load default layout: ${res.status}`);
   return res.json();

@@ -391,6 +391,36 @@ document.getElementById('save-btn').addEventListener('click', () => {
   setTimeout(() => { btn.textContent = 'Save'; }, 1500);
 });
 
+document.getElementById('publish-btn').addEventListener('click', async () => {
+  if (!state.layout) return;
+  saveLayout(state.layout);
+  const json = JSON.stringify(state.layout, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const btn = document.getElementById('publish-btn');
+  try {
+    if (window.showSaveFilePicker) {
+      const fh = await window.showSaveFilePicker({
+        suggestedName: 'published-layout.json',
+        types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }],
+      });
+      const writable = await fh.createWritable();
+      await writable.write(blob);
+      await writable.close();
+    } else {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'published-layout.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+    btn.textContent = 'Published ✓';
+    setTimeout(() => { btn.textContent = 'Publish'; }, 1500);
+  } catch (e) {
+    if (e.name !== 'AbortError') { btn.textContent = 'Failed'; setTimeout(() => { btn.textContent = 'Publish'; }, 1500); }
+  }
+});
+
 document.getElementById('reset-btn').addEventListener('click', async () => {
   if (!state.layout) return;
   if (!confirm('Reset layout to default? This clears all edits.')) return;
