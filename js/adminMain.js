@@ -404,7 +404,7 @@ document.getElementById('reset-btn').addEventListener('click', async () => {
 });
 
 // Restore token from session
-const storedToken = sessionStorage.getItem('gh-token') || '';
+const storedToken = (sessionStorage.getItem('gh-token') || '').trim();
 if (storedToken) {
   ghTokenInput.value = storedToken;
   publishBtn.disabled = false;
@@ -423,14 +423,20 @@ publishBtn.addEventListener('click', async () => {
   publishBtn.disabled = true;
   sidebarStatus.style.color = '#aaa';
   sidebarStatus.textContent = 'Publishing…';
-  const result = await publishLayout(state.layout, token);
-  publishBtn.disabled = false;
-  if (result.ok) {
-    sidebarStatus.style.color = '#4c4';
-    sidebarStatus.textContent = 'Published! (~30s to deploy)';
-  } else {
+  try {
+    const result = await publishLayout(state.layout, token);
+    if (result.ok) {
+      sidebarStatus.style.color = '#4c4';
+      sidebarStatus.textContent = 'Published! (~30s to deploy)';
+    } else {
+      sidebarStatus.style.color = '#f44';
+      sidebarStatus.textContent = result.error;
+    }
+  } catch (e) {
     sidebarStatus.style.color = '#f44';
-    sidebarStatus.textContent = result.error;
+    sidebarStatus.textContent = 'Unexpected error';
+  } finally {
+    publishBtn.disabled = ghTokenInput.value.trim().length === 0;
   }
 });
 
