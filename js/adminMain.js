@@ -50,6 +50,9 @@ const variantBtn = document.getElementById('variant-btn');
 const variantSection = document.getElementById('variant-section');
 const furnitureTypeSelect = document.getElementById('furniture-type');
 const floorTileSelect = document.getElementById('floor-tile-select');
+const ghTokenInput = document.getElementById('gh-token-input');
+const publishBtn = document.getElementById('publish-btn');
+const sidebarStatus = document.getElementById('sidebar-status');
 
 // ── Helpers ──────────────────────────────────────────────────
 
@@ -398,6 +401,37 @@ document.getElementById('reset-btn').addEventListener('click', async () => {
   state.layout = await res.json();
   state.selectedUid = null;
   rebuildLayout();
+});
+
+// Restore token from session
+const storedToken = sessionStorage.getItem('gh-token') || '';
+if (storedToken) {
+  ghTokenInput.value = storedToken;
+  publishBtn.disabled = false;
+}
+
+ghTokenInput.addEventListener('input', () => {
+  const val = ghTokenInput.value.trim();
+  sessionStorage.setItem('gh-token', val);
+  publishBtn.disabled = val.length === 0;
+});
+
+publishBtn.addEventListener('click', async () => {
+  const token = ghTokenInput.value.trim();
+  if (!token || !state.layout) return;
+  saveLayout(state.layout);
+  publishBtn.disabled = true;
+  sidebarStatus.style.color = '#aaa';
+  sidebarStatus.textContent = 'Publishing…';
+  const result = await publishLayout(state.layout, token);
+  publishBtn.disabled = false;
+  if (result.ok) {
+    sidebarStatus.style.color = '#4c4';
+    sidebarStatus.textContent = 'Published! (~30s to deploy)';
+  } else {
+    sidebarStatus.style.color = '#f44';
+    sidebarStatus.textContent = result.error;
+  }
 });
 
 // ── Init ──────────────────────────────────────────────────────
