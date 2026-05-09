@@ -18,10 +18,12 @@
     import { runTests as tileMapTests } from './js/tests/tileMap.test.js';
     import { runTests as characterTests } from './js/tests/character.test.js';
     import { runTests as layoutStoreTests } from './js/tests/layoutStore.test.js';
+    import { runTests as githubPublishTests } from './js/tests/githubPublish.test.js';
 
     tileMapTests();
     characterTests();
     layoutStoreTests();
+    await githubPublishTests();
 
     const out = document.getElementById('output');
     const results = getResults();
