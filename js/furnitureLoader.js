@@ -36,7 +36,9 @@ export async function loadFurnitureSprites(catalog) {
       }));
       sprites[variant.id] = img;
       if (variant.file.endsWith('.gif')) {
-        img.style.cssText = 'position:fixed;left:-9999px;top:-9999px;pointer-events:none';
+        // Safari won't advance GIF frames for off-screen elements; keep it in the
+        // viewport at near-zero opacity so the browser keeps compositing it.
+        img.style.cssText = 'position:fixed;left:0;top:0;width:1px;height:1px;opacity:0.01;pointer-events:none;z-index:-9999';
         document.body.appendChild(img);
       }
     }
