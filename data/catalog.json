@@ -293,5 +293,21 @@
     "variants": [
       { "id": "ROBOTICS_ARM", "file": "assets/furniture/ROBOTICS_ARM/ROBOTICS_ARM.png", "w": 40, "h": 27, "footprintW": 3, "footprintH": 2 }
     ]
+  },
+  {
+    "id": "CAT",
+    "label": "Cat",
+    "category": "items",
+    "variants": [
+      { "id": "CAT", "file": "assets/furniture/CAT/CAT.gif", "w": 32, "h": 32, "footprintW": 2, "footprintH": 2 }
+    ]
+  },
+  {
+    "id": "OPEN_BOOK",
+    "label": "Open Book",
+    "category": "items",
+    "variants": [
+      { "id": "OPEN_BOOK", "file": "assets/furniture/OPEN_BOOK/OPEN_BOOK.png", "w": 16, "h": 23, "footprintW": 1, "footprintH": 2, "centered": true }
+    ]
   }
 ]

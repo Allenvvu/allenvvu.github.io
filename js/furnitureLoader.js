@@ -35,6 +35,10 @@ export async function loadFurnitureSprites(catalog) {
         img.onerror = () => { console.warn(`Failed to load: ${variant.file}`); resolve(); };
       }));
       sprites[variant.id] = img;
+      if (variant.file.endsWith('.gif')) {
+        img.style.cssText = 'position:fixed;left:-9999px;top:-9999px;pointer-events:none';
+        document.body.appendChild(img);
+      }
     }
   }
   await Promise.all(loads);
