@@ -1,0 +1,13 @@
+{
+  "id": "GRINDER",
+  "name": "Grinder",
+  "category": "items",
+  "type": "asset",
+  "canPlaceOnWalls": false,
+  "canPlaceOnSurfaces": false,
+  "backgroundTiles": 0,
+  "width": 15,
+  "height": 28,
+  "footprintW": 1,
+  "footprintH": 2
+}

@@ -1,0 +1,13 @@
+{
+  "id": "CAR",
+  "name": "Car",
+  "category": "items",
+  "type": "asset",
+  "canPlaceOnWalls": false,
+  "canPlaceOnSurfaces": false,
+  "backgroundTiles": 0,
+  "width": 55,
+  "height": 25,
+  "footprintW": 4,
+  "footprintH": 2
+}

@@ -1,0 +1,13 @@
+{
+  "id": "DESK_3X2",
+  "name": "Desk 3x2",
+  "category": "desks",
+  "type": "asset",
+  "canPlaceOnWalls": false,
+  "canPlaceOnSurfaces": false,
+  "backgroundTiles": 0,
+  "width": 32,
+  "height": 64,
+  "footprintW": 3,
+  "footprintH": 2
+}

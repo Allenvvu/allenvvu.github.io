@@ -1,0 +1,13 @@
+{
+  "id": "SCULPTURE",
+  "name": "Sculpture",
+  "category": "items",
+  "type": "asset",
+  "canPlaceOnWalls": false,
+  "canPlaceOnSurfaces": false,
+  "backgroundTiles": 0,
+  "width": 24,
+  "height": 46,
+  "footprintW": 2,
+  "footprintH": 3
+}

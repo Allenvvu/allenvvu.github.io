@@ -1,0 +1,13 @@
+{
+  "id": "PURPLE_FLOWER",
+  "name": "Purple Flower",
+  "category": "items",
+  "type": "asset",
+  "canPlaceOnWalls": false,
+  "canPlaceOnSurfaces": false,
+  "backgroundTiles": 0,
+  "width": 13,
+  "height": 18,
+  "footprintW": 1,
+  "footprintH": 2
+}

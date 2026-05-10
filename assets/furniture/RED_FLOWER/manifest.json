@@ -1,0 +1,13 @@
+{
+  "id": "RED_FLOWER",
+  "name": "Red Flower",
+  "category": "items",
+  "type": "asset",
+  "canPlaceOnWalls": false,
+  "canPlaceOnSurfaces": false,
+  "backgroundTiles": 0,
+  "width": 14,
+  "height": 16,
+  "footprintW": 1,
+  "footprintH": 1
+}
