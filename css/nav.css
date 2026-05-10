@@ -46,6 +46,6 @@
 
 .nav-links a.active {
   color: #fff;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.8);
+  border-bottom: 2px solid #fff;
   padding-bottom: 2px;
 }
