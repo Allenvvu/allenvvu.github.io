@@ -299,7 +299,7 @@
     "label": "Cat",
     "category": "items",
     "variants": [
-      { "id": "CAT", "file": "assets/furniture/CAT/CAT_STRIP.png", "w": 32, "h": 32, "footprintW": 2, "footprintH": 2, "frames": 21, "frameW": 315, "frameDuration": 0.1 }
+      { "id": "CAT", "file": "assets/furniture/CAT/CAT_STRIP.png", "w": 48, "h": 48, "footprintW": 2, "footprintH": 2, "frames": 21, "frameW": 315, "frameDuration": 0.15 }
     ]
   },
   {

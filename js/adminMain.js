@@ -5,8 +5,8 @@ import { TileType, TILE_SIZE } from './constants.js';
 
 const ADMIN_PASSWORD = 'iloveemma'; // client-visible by design — PAT is the real credential
 
-const FLOOR_NAME_TO_TYPE = { wooden: TileType.FLOOR, white: TileType.FLOOR_WHITE, gray: TileType.FLOOR_GRAY };
-function isFloorTile(v) { return v === TileType.FLOOR || v === TileType.FLOOR_WHITE || v === TileType.FLOOR_GRAY; }
+const FLOOR_NAME_TO_TYPE = { wooden: TileType.FLOOR, white: TileType.FLOOR_WHITE, gray: TileType.FLOOR_GRAY, gray_nogrid: TileType.FLOOR_GRAY_NOGRID };
+function isFloorTile(v) { return v === TileType.FLOOR || v === TileType.FLOOR_WHITE || v === TileType.FLOOR_GRAY || v === TileType.FLOOR_GRAY_NOGRID; }
 
 function migrateLayout(layout) {
   if (!layout.floorTile || layout.floorTile === 'wooden') { delete layout.floorTile; return layout; }

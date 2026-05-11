@@ -1,13 +1,13 @@
 {
-  "id": "CAR",
-  "name": "Car",
-  "category": "items",
+  "id": "ROBOT",
+  "name": "Robot",
+  "category": "misc",
   "type": "asset",
   "canPlaceOnWalls": false,
   "canPlaceOnSurfaces": false,
   "backgroundTiles": 0,
-  "width": 48,
-  "height": 21,
-  "footprintW": 3,
+  "width": 25,
+  "height": 32,
+  "footprintW": 2,
   "footprintH": 2
 }

@@ -9,7 +9,7 @@ export function loadFloorTile(name) {
 }
 
 export async function loadAllFloorTiles() {
-  const entries = [[1, 'wooden'], [2, 'white'], [3, 'gray']];
+  const entries = [[1, 'wooden'], [2, 'white'], [3, 'gray'], [4, 'gray_nogrid']];
   const result = {};
   await Promise.all(entries.map(([tileVal, name]) =>
     loadFloorTile(name).then(img => { result[tileVal] = img; })

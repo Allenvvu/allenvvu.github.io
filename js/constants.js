@@ -8,8 +8,8 @@ export const WANDER_PAUSE_MAX_SEC = 20.0;
 export const FLOOR_COLOR = '#808080';
 export const WALL_COLOR = '#3A3A5C';
 
-export const TileType = Object.freeze({ WALL: 0, FLOOR: 1, FLOOR_WHITE: 2, FLOOR_GRAY: 3, VOID: 255 });
-export const FLOOR_TILE_NAMES = Object.freeze({ 1: 'wooden', 2: 'white', 3: 'gray' });
+export const TileType = Object.freeze({ WALL: 0, FLOOR: 1, FLOOR_WHITE: 2, FLOOR_GRAY: 3, FLOOR_GRAY_NOGRID: 4, VOID: 255 });
+export const FLOOR_TILE_NAMES = Object.freeze({ 1: 'wooden', 2: 'white', 3: 'gray', 4: 'gray_nogrid' });
 export const CharacterState = Object.freeze({ IDLE: 'idle', WALK: 'walk' });
 export const Direction = Object.freeze({ DOWN: 0, RIGHT: 1, UP: 2, LEFT: 3 });
 
