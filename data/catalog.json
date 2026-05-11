@@ -275,7 +275,7 @@
     "label": "Car",
     "category": "items",
     "variants": [
-      { "id": "CAR", "file": "assets/furniture/CAR/CAR.png", "w": 55, "h": 25, "footprintW": 4, "footprintH": 2 }
+      { "id": "CAR", "file": "assets/furniture/CAR/CAR.png", "w": 48, "h": 21, "footprintW": 3, "footprintH": 2 }
     ]
   },
   {
@@ -299,7 +299,7 @@
     "label": "Cat",
     "category": "items",
     "variants": [
-      { "id": "CAT", "file": "assets/furniture/CAT/CAT.gif", "w": 32, "h": 32, "footprintW": 2, "footprintH": 2 }
+      { "id": "CAT", "file": "assets/furniture/CAT/CAT_STRIP.png", "w": 32, "h": 32, "footprintW": 2, "footprintH": 2, "frames": 21, "frameW": 315, "frameDuration": 0.1 }
     ]
   },
   {
@@ -308,6 +308,14 @@
     "category": "items",
     "variants": [
       { "id": "OPEN_BOOK", "file": "assets/furniture/OPEN_BOOK/OPEN_BOOK.png", "w": 16, "h": 23, "footprintW": 1, "footprintH": 2, "centered": true }
+    ]
+  },
+  {
+    "id": "ROBOT",
+    "label": "Robot",
+    "category": "items",
+    "variants": [
+      { "id": "ROBOT", "file": "assets/furniture/ROBOT/ROBOT.png", "w": 25, "h": 32, "footprintW": 2, "footprintH": 2 }
     ]
   }
 ]
