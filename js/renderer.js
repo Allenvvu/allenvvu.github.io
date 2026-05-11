@@ -85,6 +85,10 @@ export function renderFrame(ctx, layout, furnitureInstances, character, charImg,
     const fy = offsetY + f.row * s + drawOffY;
     const fimg = f.img;
     const mirror = !!f.variant.mirror;
+    const isAnimated = (f.variant.frames ?? 1) > 1;
+    const animSrcX = isAnimated ? f.frameIndex * f.variant.frameW : 0;
+    const animFrameW = isAnimated ? f.variant.frameW : 0;
+    const animFrameH = isAnimated ? fimg.naturalHeight : 0;
 
     let zY = (f.row + f.variant.footprintH) * TILE_SIZE;
     if (f.isItem) {
@@ -105,10 +109,18 @@ export function renderFrame(ctx, layout, furnitureInstances, character, charImg,
           c.save();
           c.translate(fx + fw, fy);
           c.scale(-1, 1);
-          c.drawImage(fimg, 0, 0, fw, fh);
+          if (isAnimated) {
+            c.drawImage(fimg, animSrcX, 0, animFrameW, animFrameH, 0, 0, fw, fh);
+          } else {
+            c.drawImage(fimg, 0, 0, fw, fh);
+          }
           c.restore();
         } else {
-          c.drawImage(fimg, fx, fy, fw, fh);
+          if (isAnimated) {
+            c.drawImage(fimg, animSrcX, 0, animFrameW, animFrameH, fx, fy, fw, fh);
+          } else {
+            c.drawImage(fimg, fx, fy, fw, fh);
+          }
         }
       },
     });
