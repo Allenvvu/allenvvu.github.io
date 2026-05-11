@@ -1,5 +1,5 @@
 import { assert, assertEqual } from './run.js';
-import { buildTileMap, buildBlockedTiles, buildFurnitureInstances } from '../layoutStore.js';
+import { buildTileMap, buildBlockedTiles, buildFurnitureInstances, updateFurnitureAnimations } from '../layoutStore.js';
 
 export function runTests() {
   // buildTileMap: 2×2 flat → 2D
@@ -79,4 +79,39 @@ export function runTests() {
   const binBlocked = buildBlockedTiles(binFurniture, binCatalog);
   assertEqual(binBlocked.size, 1, 'BIN blocks exactly 1 tile');
   assert(binBlocked.has('3,7'), 'BIN blocks (3,7)');
+
+  // buildFurnitureInstances: animated variant gets frameIndex/frameTimer
+  const animCatalog = [{
+    id: 'CAT', label: 'Cat',
+    variants: [{ id: 'CAT', file: '', w: 32, h: 32, footprintW: 2, footprintH: 2, frames: 21, frameW: 315, frameDuration: 0.1 }],
+  }];
+  const animFurniture = [{ uid: 'c1', type: 'CAT', variantId: 'CAT', col: 4, row: 4 }];
+  const animInstances = buildFurnitureInstances(animFurniture, animCatalog, {});
+  assertEqual(animInstances[0].frameIndex, 0, 'animated instance starts at frameIndex 0');
+  assertEqual(animInstances[0].frameTimer, 0, 'animated instance starts at frameTimer 0');
+
+  // buildFurnitureInstances: static variant does NOT get frameIndex/frameTimer
+  const staticCatalog = [{
+    id: 'BIN2', label: 'Bin2',
+    variants: [{ id: 'BIN2', file: '', w: 16, h: 16, footprintW: 1, footprintH: 1 }],
+  }];
+  const staticFurniture = [{ uid: 's1', type: 'BIN2', variantId: 'BIN2', col: 0, row: 0 }];
+  const staticInstances = buildFurnitureInstances(staticFurniture, staticCatalog, {});
+  assert(staticInstances[0].frameIndex === undefined, 'static instance has no frameIndex');
+  assert(staticInstances[0].frameTimer === undefined, 'static instance has no frameTimer');
+
+  // updateFurnitureAnimations: advances frameIndex after frameDuration elapses
+  const tickInst = { variant: { frames: 3, frameDuration: 0.1 }, frameIndex: 0, frameTimer: 0 };
+  updateFurnitureAnimations([tickInst], 0.15);
+  assertEqual(tickInst.frameIndex, 1, 'frameIndex advances to 1 after 0.15s (duration 0.1)');
+
+  // updateFurnitureAnimations: wraps back to 0 after last frame
+  const wrapInst = { variant: { frames: 3, frameDuration: 0.1 }, frameIndex: 2, frameTimer: 0 };
+  updateFurnitureAnimations([wrapInst], 0.15);
+  assertEqual(wrapInst.frameIndex, 0, 'frameIndex wraps from 2 back to 0');
+
+  // updateFurnitureAnimations: skips non-animated instances (no variant.frames)
+  const staticInst = { variant: { frames: 1 }, frameIndex: undefined, frameTimer: undefined };
+  updateFurnitureAnimations([staticInst], 1.0);
+  assert(staticInst.frameIndex === undefined, 'non-animated instance untouched');
 }

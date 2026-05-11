@@ -52,6 +52,23 @@ export function buildFurnitureInstances(furniture, catalog, sprites) {
   return furniture.map(f => {
     const item = catalog.find(c => c.id === f.type);
     const variant = item ? item.variants.find(v => v.id === f.variantId) : null;
-    return { ...f, variant, img: sprites[f.variantId] ?? null, isItem: item?.category === 'items' };
+    const base = { ...f, variant, img: sprites[f.variantId] ?? null, isItem: item?.category === 'items' };
+    if (variant?.frames > 1) {
+      base.frameIndex = 0;
+      base.frameTimer = 0;
+    }
+    return base;
   });
+}
+
+/** Advance animation timers for all animated furniture instances */
+export function updateFurnitureAnimations(instances, dt) {
+  for (const f of instances) {
+    if (!f.variant?.frames || f.variant.frames <= 1) continue;
+    f.frameTimer += dt;
+    while (f.frameTimer >= f.variant.frameDuration) {
+      f.frameTimer -= f.variant.frameDuration;
+      f.frameIndex = (f.frameIndex + 1) % f.variant.frames;
+    }
+  }
 }
