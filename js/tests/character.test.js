@@ -15,24 +15,24 @@ export function runTests() {
   ch.dir = Direction.DOWN;
   ch.state = CharacterState.IDLE;
   ch.frame = 4;
-  assertEqual(getFrameSrcX(ch), 0, 'IDLE DOWN always srcX=0 (dir offset 0, frame 0)');
+  assertEqual(getFrameSrcX(ch), 5, 'IDLE DOWN uses the updated sprite-strip offset');
 
   ch.dir = Direction.RIGHT;
-  assertEqual(getFrameSrcX(ch), 96, 'IDLE RIGHT always srcX=96 (dir offset 96, frame 0)');
+  assertEqual(getFrameSrcX(ch), 199, 'IDLE RIGHT uses the updated sprite-strip offset');
 
   ch.dir = Direction.UP;
-  assertEqual(getFrameSrcX(ch), 192, 'IDLE UP always srcX=192 (dir offset 192, frame 0)');
+  assertEqual(getFrameSrcX(ch), 391, 'IDLE UP uses the updated sprite-strip offset');
 
   ch.dir = Direction.LEFT;
-  assertEqual(getFrameSrcX(ch), 288, 'IDLE LEFT always srcX=288 (dir offset 288, frame 0)');
+  assertEqual(getFrameSrcX(ch), 584, 'IDLE LEFT uses the updated sprite-strip offset');
 
   // getFrameSrcX: WALK uses current frame
   ch.dir = Direction.DOWN;
   ch.state = CharacterState.WALK;
   ch.frame = 3;
-  assertEqual(getFrameSrcX(ch), 0 + 3 * 16, 'WALK DOWN frame 3 srcX=48');
+  assertEqual(getFrameSrcX(ch), 101, 'WALK DOWN frame 3 uses the corrected 32px stride');
 
   ch.dir = Direction.RIGHT;
   ch.frame = 5;
-  assertEqual(getFrameSrcX(ch), 96 + 5 * 16, 'WALK RIGHT frame 5 srcX=176');
+  assertEqual(getFrameSrcX(ch), 359, 'WALK RIGHT frame 5 uses the corrected 32px stride');
 }

@@ -4,6 +4,7 @@ import { createCharacter, updateCharacter } from './character.js';
 import { renderFrame, computeZoom } from './renderer.js';
 import { startGameLoop } from './gameLoop.js';
 import { getWalkableTiles } from './tileMap.js';
+import { initPortfolio } from './portfolio.js';
 
 async function main() {
   const canvas = document.getElementById('scene');
@@ -33,13 +34,26 @@ async function main() {
     ? walkable[Math.floor(Math.random() * walkable.length)]
     : { col: 1, row: 1 };
   const character = createCharacter(start.col, start.row);
+  const portfolio = initPortfolio({
+    canvas,
+    getLayout: () => layout,
+  });
 
   startGameLoop(canvas, {
     update: (dt) => {
       updateCharacter(character, dt, tileMap, blockedTiles);
       updateFurnitureAnimations(furnitureInstances, dt);
     },
-    render: (ctx) => renderFrame(ctx, { cols: layout.cols, rows: layout.rows, tileMap }, furnitureInstances, character, charImg, zoom, floorImgs),
+    render: (ctx) => renderFrame(
+      ctx,
+      { cols: layout.cols, rows: layout.rows, tileMap },
+      furnitureInstances,
+      character,
+      charImg,
+      zoom,
+      floorImgs,
+      portfolio.getCamera(),
+    ),
   });
 
   window.addEventListener('storage', (e) => {

@@ -1,0 +1,228 @@
+<h2>Portfolio Overlay Direction</h2>
+<p class="subtitle">Click a direction if one feels right. These are lightweight visual proposals for the nav, dim overlay, room focus, and modal tone.</p>
+
+<style>
+  .portfolio-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .portfolio-card {
+    border: 2px solid #31384d;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #121725;
+    cursor: pointer;
+    transition: transform 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+  }
+
+  .portfolio-card:hover,
+  .portfolio-card.selected {
+    transform: translateY(-2px);
+    border-color: #f6d36b;
+    box-shadow: 0 0 0 2px rgba(246, 211, 107, 0.16), 0 16px 40px rgba(0, 0, 0, 0.28);
+  }
+
+  .scene-mini {
+    position: relative;
+    min-height: 260px;
+    background:
+      linear-gradient(90deg, transparent 49%, #20263a 50%, transparent 51%),
+      linear-gradient(180deg, transparent 58%, #20263a 59%, transparent 60%),
+      #182033;
+    font-family: "Courier New", monospace;
+    overflow: hidden;
+  }
+
+  .mini-room {
+    position: absolute;
+    border: 2px solid #41506c;
+    background-size: 18px 18px;
+    background-image:
+      linear-gradient(45deg, rgba(255,255,255,0.04) 25%, transparent 25%),
+      linear-gradient(-45deg, rgba(255,255,255,0.04) 25%, transparent 25%);
+  }
+
+  .room-about { left: 7%; top: 14%; width: 38%; height: 42%; background-color: #b87955; }
+  .room-blogs { right: 7%; top: 14%; width: 38%; height: 42%; background-color: #8d9ca4; }
+  .room-projects { right: 7%; bottom: 9%; width: 38%; height: 28%; background-color: #d8d3c7; }
+
+  .room-label {
+    position: absolute;
+    left: 10px;
+    top: 8px;
+    font-size: 11px;
+    color: #111827;
+    background: rgba(255,255,255,0.5);
+    padding: 2px 5px;
+  }
+
+  .mini-nav {
+    position: absolute;
+    inset: 14px 14px auto 14px;
+    z-index: 4;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: start;
+    pointer-events: none;
+  }
+
+  .mini-logo {
+    color: #ffe7a0;
+    text-shadow: 2px 2px #111;
+    font-weight: 800;
+    font-size: 14px;
+    letter-spacing: 0;
+  }
+
+  .mini-tabs {
+    display: flex;
+    gap: 6px;
+    padding: 5px;
+    background: rgba(13, 18, 31, 0.78);
+    border: 2px solid rgba(255,255,255,0.2);
+  }
+
+  .mini-tab {
+    color: #f7f1dd;
+    border: 1px solid #5d6b84;
+    padding: 5px 8px;
+    font-size: 11px;
+    background: rgba(255,255,255,0.07);
+  }
+
+  .mini-focus {
+    position: absolute;
+    border: 3px solid #f6d36b;
+    box-shadow: 0 0 0 999px rgba(3, 6, 14, 0.58);
+    z-index: 2;
+  }
+
+  .focus-about { left: 5%; top: 11%; width: 42%; height: 48%; }
+  .focus-blogs { right: 5%; top: 11%; width: 42%; height: 48%; }
+  .focus-projects { right: 5%; bottom: 6%; width: 42%; height: 34%; }
+
+  .mini-modal {
+    position: absolute;
+    z-index: 5;
+    left: 50%;
+    top: 56%;
+    transform: translate(-50%, -50%);
+    width: min(78%, 260px);
+    padding: 14px;
+    color: #f9f4dc;
+    background: rgba(18, 23, 37, 0.94);
+    border: 2px solid #f6d36b;
+    box-shadow: 7px 7px 0 rgba(0, 0, 0, 0.45);
+  }
+
+  .mini-modal h4 {
+    margin: 0 0 8px;
+    font-size: 17px;
+    color: #ffe7a0;
+  }
+
+  .mini-modal p,
+  .mini-modal li {
+    font-size: 11px;
+    line-height: 1.4;
+    color: #d9dfeb;
+  }
+
+  .mini-close {
+    position: absolute;
+    top: 7px;
+    right: 8px;
+    color: #f9f4dc;
+  }
+
+  .card-body-copy {
+    padding: 14px;
+  }
+
+  .card-body-copy h3 {
+    margin: 0 0 6px;
+    color: #f7f1dd;
+  }
+
+  .card-body-copy p {
+    margin: 0;
+    color: #abb5cc;
+    line-height: 1.45;
+  }
+</style>
+
+<div class="portfolio-grid">
+  <div class="portfolio-card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="scene-mini">
+      <div class="mini-room room-about"><span class="room-label">About</span></div>
+      <div class="mini-room room-blogs"><span class="room-label">Blogs</span></div>
+      <div class="mini-room room-projects"><span class="room-label">Projects</span></div>
+      <div class="mini-nav">
+        <div class="mini-logo">ALLEN WU</div>
+        <div class="mini-tabs"><span class="mini-tab">About</span><span class="mini-tab">Projects</span><span class="mini-tab">Blogs</span></div>
+        <div></div>
+      </div>
+      <div class="mini-focus focus-about"></div>
+      <div class="mini-modal">
+        <span class="mini-close">x</span>
+        <h4>About</h4>
+        <p>Short bio with a compact skills row. Modal stays centered while the canvas camera moves behind it.</p>
+      </div>
+    </div>
+    <div class="card-body-copy">
+      <h3>A. Pixel Panel</h3>
+      <p>Strong pixel-game styling: chunky border, dark translucent card, visible golden focus frame around the target room.</p>
+    </div>
+  </div>
+
+  <div class="portfolio-card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="scene-mini">
+      <div class="mini-room room-about"><span class="room-label">About</span></div>
+      <div class="mini-room room-blogs"><span class="room-label">Blogs</span></div>
+      <div class="mini-room room-projects"><span class="room-label">Projects</span></div>
+      <div class="mini-nav">
+        <div class="mini-logo" style="color:#f4f0e2;">ALLEN WU</div>
+        <div class="mini-tabs" style="border-radius:999px;border-width:1px;"><span class="mini-tab" style="border-radius:999px;">About</span><span class="mini-tab" style="border-radius:999px;">Projects</span><span class="mini-tab" style="border-radius:999px;">Blogs</span></div>
+        <div></div>
+      </div>
+      <div class="mini-focus focus-projects" style="border-color:rgba(255,255,255,0.75); box-shadow:0 0 0 999px rgba(5, 8, 14, 0.64);"></div>
+      <div class="mini-modal" style="border-color:rgba(255,255,255,0.38); box-shadow:0 20px 60px rgba(0,0,0,0.48);">
+        <span class="mini-close">x</span>
+        <h4 style="color:#f4f0e2;">Projects</h4>
+        <p>Cleaner portfolio feel with lighter UI chrome and less game-like contrast.</p>
+      </div>
+    </div>
+    <div class="card-body-copy">
+      <h3>B. Editorial Overlay</h3>
+      <p>More polished and portfolio-like, with restrained borders. It respects the office but feels less like an in-game menu.</p>
+    </div>
+  </div>
+
+  <div class="portfolio-card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="scene-mini">
+      <div class="mini-room room-about"><span class="room-label">About</span></div>
+      <div class="mini-room room-blogs"><span class="room-label">Blogs</span></div>
+      <div class="mini-room room-projects"><span class="room-label">Projects</span></div>
+      <div class="mini-nav" style="grid-template-columns:auto 1fr auto;">
+        <div class="mini-logo" style="font-size:13px;">ALLEN WU</div>
+        <div></div>
+        <div class="mini-tabs"><span class="mini-tab">About</span><span class="mini-tab">Projects</span><span class="mini-tab">Blogs</span></div>
+      </div>
+      <div class="mini-focus focus-blogs"></div>
+      <div class="mini-modal" style="top:60%; width:66%;">
+        <span class="mini-close">x</span>
+        <h4>Blogs</h4>
+        <ul>
+          <li>Post title, date, short excerpt</li>
+          <li>Post title, date, short excerpt</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card-body-copy">
+      <h3>C. Compact HUD</h3>
+      <p>Smaller modal and right-biased tabs. Less obstruction, but the top-center nav request becomes looser.</p>
+    </div>
+  </div>
+</div>
