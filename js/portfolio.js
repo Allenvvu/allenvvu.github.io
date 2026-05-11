@@ -2,29 +2,23 @@ import { TILE_SIZE } from './constants.js';
 import { computeOffset, computeZoom } from './renderer.js';
 
 export const ROOM_TARGETS = Object.freeze({
-  about: Object.freeze({ col: 1, row: 1, cols: 15, rows: 10 }),
-  blogs: Object.freeze({ col: 16, row: 1, cols: 16, rows: 10 }),
-  projects: Object.freeze({ col: 16, row: 11, cols: 16, rows: 7 }),
+  about: Object.freeze({ zoom: 7, location: Object.freeze({ col: 8.5, row: 5 }) }),
+  blogs: Object.freeze({ zoom: 7, location: Object.freeze({ col: 25, row: 5 }) }),
+  projects: Object.freeze({ zoom: 7, location: Object.freeze({ col: 25, row: 12 }) }),
 });
 
-export function computeDefaultCamera(canvasWidth, canvasHeight, layout) {
-  const zoom = computeZoom(canvasWidth, canvasHeight, layout.cols, layout.rows);
+export function computeDefaultCamera(canvasWidth, canvasHeight, layout, zoomOverride = null) {
+  const zoom = zoomOverride ?? computeZoom(canvasWidth, canvasHeight, layout.cols, layout.rows);
   return {
     zoom,
     ...computeOffset(canvasWidth, canvasHeight, layout.cols, layout.rows, zoom),
   };
 }
 
-export function computeRoomCamera(canvasWidth, canvasHeight, layout, bounds) {
-  const roomWidth = bounds.cols * TILE_SIZE;
-  const roomHeight = bounds.rows * TILE_SIZE;
-  const defaultCamera = computeDefaultCamera(canvasWidth, canvasHeight, layout);
-  const zoom = Math.max(
-    defaultCamera.zoom,
-    Math.floor(Math.max(canvasWidth / roomWidth, canvasHeight / roomHeight)),
-  );
-  const centerX = bounds.col * TILE_SIZE + roomWidth / 2;
-  const centerY = bounds.row * TILE_SIZE + roomHeight / 2;
+export function computeRoomCamera(canvasWidth, canvasHeight, target, zoomOverride = null) {
+  const zoom = zoomOverride ?? target.zoom;
+  const centerX = target.location.col * TILE_SIZE;
+  const centerY = target.location.row * TILE_SIZE;
   return {
     zoom,
     offsetX: Math.round(canvasWidth / 2 - centerX * zoom),
@@ -40,9 +34,9 @@ export function easeOutCubic(t) {
 export function mixCamera(fromCamera, toCamera, t) {
   const clamped = Math.max(0, Math.min(1, t));
   return {
-    zoom: Math.round(fromCamera.zoom + (toCamera.zoom - fromCamera.zoom) * clamped),
-    offsetX: Math.round(fromCamera.offsetX + (toCamera.offsetX - fromCamera.offsetX) * clamped),
-    offsetY: Math.round(fromCamera.offsetY + (toCamera.offsetY - fromCamera.offsetY) * clamped),
+    zoom: fromCamera.zoom + (toCamera.zoom - fromCamera.zoom) * clamped,
+    offsetX: fromCamera.offsetX + (toCamera.offsetX - fromCamera.offsetX) * clamped,
+    offsetY: fromCamera.offsetY + (toCamera.offsetY - fromCamera.offsetY) * clamped,
   };
 }
 
@@ -111,7 +105,7 @@ export const SECTION_CONTENT = Object.freeze({
   }),
 });
 
-export function initPortfolio({ canvas, getLayout }) {
+export function initPortfolio({ canvas, getLayout, defaultZoom = null }) {
   const tabs = Array.from(document.querySelectorAll('[data-portfolio-tab]'));
   const dim = document.getElementById('portfolio-dim');
   const modal = document.getElementById('portfolio-modal');
@@ -128,12 +122,20 @@ export function initPortfolio({ canvas, getLayout }) {
     return { cols: layout.cols, rows: layout.rows };
   }
 
+  const initialLayout = layoutInfo();
+  const lockedOverviewZoom = defaultZoom ?? computeZoom(
+    canvas.width,
+    canvas.height,
+    initialLayout.cols,
+    initialLayout.rows,
+  );
+
   function cameraForSection(section) {
-    return computeRoomCamera(canvas.width, canvas.height, layoutInfo(), ROOM_TARGETS[section]);
+    return computeRoomCamera(canvas.width, canvas.height, ROOM_TARGETS[section]);
   }
 
   function defaultCamera() {
-    return computeDefaultCamera(canvas.width, canvas.height, layoutInfo());
+    return computeDefaultCamera(canvas.width, canvas.height, layoutInfo(), lockedOverviewZoom);
   }
 
   function currentCamera(now = performance.now()) {
