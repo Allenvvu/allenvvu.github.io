@@ -86,6 +86,7 @@ export function renderFrame(ctx, layout, furnitureInstances, character, charImg,
     const fimg = f.img;
     const mirror = !!f.variant.mirror;
     const isAnimated = (f.variant.frames ?? 1) > 1;
+    if (isAnimated && fimg.naturalHeight === 0) continue;
     const animSrcX = isAnimated ? f.frameIndex * f.variant.frameW : 0;
     const animFrameW = isAnimated ? f.variant.frameW : 0;
     const animFrameH = isAnimated ? fimg.naturalHeight : 0;
