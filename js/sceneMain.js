@@ -1,5 +1,5 @@
 import { loadCatalog, loadFurnitureSprites, loadAllFloorTiles } from './furnitureLoader.js';
-import { loadLayout, buildTileMap, buildBlockedTiles, buildFurnitureInstances } from './layoutStore.js';
+import { loadLayout, buildTileMap, buildBlockedTiles, buildFurnitureInstances, updateFurnitureAnimations } from './layoutStore.js';
 import { createCharacter, updateCharacter } from './character.js';
 import { renderFrame, computeZoom } from './renderer.js';
 import { startGameLoop } from './gameLoop.js';
@@ -35,7 +35,10 @@ async function main() {
   const character = createCharacter(start.col, start.row);
 
   startGameLoop(canvas, {
-    update: (dt) => updateCharacter(character, dt, tileMap, blockedTiles),
+    update: (dt) => {
+      updateCharacter(character, dt, tileMap, blockedTiles);
+      updateFurnitureAnimations(furnitureInstances, dt);
+    },
     render: (ctx) => renderFrame(ctx, { cols: layout.cols, rows: layout.rows, tileMap }, furnitureInstances, character, charImg, zoom, floorImgs),
   });
 
