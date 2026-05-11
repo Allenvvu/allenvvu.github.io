@@ -79,8 +79,11 @@ export function renderFrame(ctx, layout, furnitureInstances, character, charImg,
     if (!f.img || !f.variant) continue;
     const fw = Math.round(f.variant.w * zoom);
     const fh = Math.round(f.variant.h * zoom);
-    const drawOffX = f.variant.centered ? Math.round((f.variant.footprintW * TILE_SIZE * zoom - fw) / 2) : 0;
-    const drawOffY = f.variant.centered ? Math.round((f.variant.footprintH * TILE_SIZE * zoom - fh) / 2) : 0;
+    const footprintPxW = f.variant.footprintW * TILE_SIZE * zoom;
+    const footprintPxH = f.variant.footprintH * TILE_SIZE * zoom;
+    const drawOffX = f.variant.centered ? Math.round((footprintPxW - fw) / 2) : 0;
+    const drawOffY = f.variant.centered ? Math.round((footprintPxH - fh) / 2)
+                   : f.variant.anchorBottom ? Math.round(footprintPxH - fh) : 0;
     const fx = offsetX + f.col * s + drawOffX;
     const fy = offsetY + f.row * s + drawOffY;
     const fimg = f.img;
