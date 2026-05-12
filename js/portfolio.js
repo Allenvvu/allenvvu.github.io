@@ -106,6 +106,7 @@ export const SECTION_CONTENT = Object.freeze({
 });
 
 export function initPortfolio({ canvas, getLayout, defaultZoom = null }) {
+  const homeButton = document.getElementById('portfolio-home');
   const tabs = Array.from(document.querySelectorAll('[data-portfolio-tab]'));
   const dim = document.getElementById('portfolio-dim');
   const modal = document.getElementById('portfolio-modal');
@@ -203,6 +204,8 @@ export function initPortfolio({ canvas, getLayout, defaultZoom = null }) {
   }
 
   function closeSection() {
+    if (!activeSection && !transition) return;
+
     window.clearTimeout(modalTimer);
     window.clearTimeout(hideTimer);
 
@@ -233,6 +236,7 @@ export function initPortfolio({ canvas, getLayout, defaultZoom = null }) {
   }
 
   closeButton.addEventListener('click', closeSection);
+  homeButton?.addEventListener('click', closeSection);
   window.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && (activeSection || transition)) {
       closeSection();

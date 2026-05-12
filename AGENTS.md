@@ -1,105 +1,205 @@
 # Pixel Office
 
-Vanilla HTML/JS pixel-art office scene. No bundler, no framework, no TypeScript. ES6 modules run directly in browser.
+Static browser app built with vanilla HTML, CSS, JSON, and ES modules. No bundler, no framework, no TypeScript, no Node runtime required.
 
-## Pages
+## Entry Points
 
-| Page | Entry point | Purpose |
+| Page | Boot file | Purpose |
 |---|---|---|
-| `index.html` | `js/sceneMain.js` | Full-screen scene viewer with animated wandering character |
-| `admin.html` | `js/adminMain.js` | Tile painter + furniture placement editor |
-| `tests.html` | inline module | In-browser test runner, no Node/npm |
+| `index.html` | `js/sceneMain.js` | Public scene viewer with wandering character and portfolio overlay |
+| `admin.html` | `js/adminMain.js` | Protected layout editor for tiles and furniture |
+| `tests.html` | inline module | In-browser test harness for pure JS modules |
 
-## Module Map
+## Directory Map
 
-```
+```text
+assets/
+  Character Model.png
+  floor/              floor textures; runtime currently uses wooden/white/gray/gray_nogrid
+  furniture/          38 furniture type folders; catalog.json is authoritative, not manifest.json
+
+css/
+  main.css            public scene + portfolio overlay styles
+  admin.css           editor shell, auth gate, sidebar, overlays
+
+data/
+  catalog.json        furniture catalog: 38 types, 53 variants, 4 categories
+  default-layout.json blank-ish fallback layout
+  published-layout.json shipped layout used before local edits exist
+
 js/
-  constants.js       — root; TileType, Direction, CharacterState, TILE_SIZE, speeds, colors
-  gameLoop.js        — rAF loop, delta-time cap, returns stop(); sets imageSmoothingEnabled=false
-  tileMap.js         — isWalkable, getWalkableTiles, findPath (BFS)
-  character.js       — createCharacter, updateCharacter (wander AI), getFrameSrcX
-  renderer.js        — renderFrame (tiles→Z-sorted furniture+character), computeZoom, pixelToTile, computeOffset
-  layoutStore.js     — loadLayout, saveLayout, resetLayout, buildTileMap, buildBlockedTiles, buildFurnitureInstances
-  furnitureLoader.js — loadCatalog, loadFurnitureSprites, loadAllFloorTiles
-  sceneMain.js       — scene entry: parallel load → build → game loop → storage/resize listeners
-  adminMain.js       — editor entry: load → state obj → dirty-flag RAF → mouse/button handlers
-  tests/run.js       — assert, assertEqual, getResults (14-line harness)
-  tests/tileMap.test.js
-  tests/layoutStore.test.js
-  tests/character.test.js
+  constants.js        enums, tile values, sprite math, movement tuning
+  furnitureLoader.js  catalog fetch, furniture sprite loads, floor tile loads
+  layoutStore.js      layout load/save/reset + derived tile/block/render structures
+  tileMap.js          walkability checks + BFS pathfinding
+  character.js        wandering AI + sprite frame selection
+  renderer.js         tile/furniture/character rendering, zoom, offsets, pixel→tile
+  gameLoop.js         shared scene rAF loop
+  portfolio.js        portfolio overlay state, room cameras, modal content
+  sceneMain.js        public scene bootstrap
+  adminMain.js        editor bootstrap + full interaction controller
+  tests/
+    run.js
+    tileMap.test.js
+    character.test.js
+    layoutStore.test.js
+    portfolio.test.js
+    githubPublish.test.js   orphaned; imports missing js/githubPublish.js and is not run by tests.html
+
+docs/superpowers/
+  plans/              implementation plans
+  specs/              design/spec notes
 ```
 
-### Dependency graph
+## Runtime Architecture
 
-```
-constants ← (none)
-gameLoop  ← constants
-tileMap   ← constants
-character ← constants, tileMap
-renderer  ← constants, character
-layoutStore    ← (none)
-furnitureLoader← (none)
-sceneMain ← all above
-adminMain ← all above
-```
+### Scene
+- `sceneMain.js` loads catalog + layout in parallel, then character sprite, furniture sprites, and floor textures.
+- Layout source order is: `localStorage` → `data/published-layout.json` → `data/default-layout.json`.
+- Scene builds derived state with `buildTileMap()`, `buildBlockedTiles()`, and `buildFurnitureInstances()`.
+- Character spawns on a random walkable tile and updates every frame.
+- Rendering runs through `startGameLoop()` and `renderFrame()`.
+- Portfolio navigation is layered over the canvas and drives camera transitions via `portfolio.js`.
+- Cross-tab layout changes sync through the `storage` event.
 
-## Data Schemas
+### Admin
+- `admin.html` has a client-side auth gate, canvas area, floating selection toolbar, and sidebar controls.
+- `adminMain.js` uses one mutable `state` object plus a dirty-flag render loop (`needsRender`).
+- Editor supports tile painting, furniture placement, selection, deletion, rotation, save, reset, and publish/export.
+- Save writes to `localStorage`.
+- Publish exports a JSON file with `showSaveFilePicker()` when available, otherwise a download link fallback.
+- Reset clears `localStorage` and reloads `data/default-layout.json`.
 
-**catalog.json** — array of furniture types:
+## Module Responsibilities
+
+| Module | Responsibility |
+|---|---|
+| `js/constants.js` | `TileType`, `Direction`, `CharacterState`, sizes, speeds, sprite offsets |
+| `js/furnitureLoader.js` | Fetch `catalog.json`; load furniture images and 4 floor textures |
+| `js/layoutStore.js` | Load persisted layout; rebuild tile map, blocked tiles, furniture instances, animation state |
+| `js/tileMap.js` | `isWalkable()`, `getWalkableTiles()`, `findPath()` |
+| `js/character.js` | Idle/walk state machine and sprite strip frame selection |
+| `js/renderer.js` | Draw tiles, z-sort drawables, render mirrored/animated/centered sprites, compute zoom/offset |
+| `js/gameLoop.js` | Capped-delta requestAnimationFrame loop for the public scene |
+| `js/portfolio.js` | Section targets, camera math, modal content, open/close transitions |
+| `js/sceneMain.js` | Public app orchestration |
+| `js/adminMain.js` | Editor state, placement rules, mouse handling, toolbar actions |
+
+## Data Contracts
+
+### Layout
+
 ```json
 {
-  "id": "DESK", "label": "Desk",
-  "category": "desks|chairs|wall|items",
-  "variants": [{ "id": "DESK_FRONT", "file": "assets/...", "w": 48, "h": 32,
-                  "footprintW": 3, "footprintH": 2, "mirror": false, "centered": false }]
+  "version": 1,
+  "cols": 32,
+  "rows": 18,
+  "tiles": [255, 2, 2],
+  "furniture": [
+    { "uid": "abc12345", "type": "DESK", "variantId": "DESK_FRONT", "col": 5, "row": 3 }
+  ]
 }
 ```
-38 furniture types total. `mirror: true` → flip horizontally on render. `centered: true` → center sprite within footprint.
 
-**default-layout.json** — 32×18 grid:
+- Tiles are stored flat as `tiles[row * cols + col]`.
+- Runtime rebuilds `tileMap[row][col]`.
+- `default-layout.json` currently contains no furniture and mostly white floor + void border.
+- `published-layout.json` currently contains 30 placed furniture instances.
+
+### Tile Values
+
+| Value | Meaning |
+|---|---|
+| `0` | `WALL` |
+| `1` | `FLOOR` / wooden legacy floor |
+| `2` | `FLOOR_WHITE` |
+| `3` | `FLOOR_GRAY` |
+| `4` | `FLOOR_GRAY_NOGRID` |
+| `255` | `VOID` |
+
+### Catalog
+
 ```json
-{ "version": 1, "cols": 32, "rows": 18,
-  "tiles": [...],
-  "furniture": [{ "uid": "abc12345", "type": "DESK", "variantId": "DESK_FRONT", "col": 5, "row": 3 }] }
+{
+  "id": "DESK",
+  "label": "Desk",
+  "category": "desks",
+  "variants": [
+    {
+      "id": "DESK_FRONT",
+      "file": "assets/furniture/DESK/DESK_FRONT.png",
+      "w": 48,
+      "h": 32,
+      "footprintW": 3,
+      "footprintH": 2
+    }
+  ]
+}
 ```
-Tile values: `0=WALL  1=FLOOR(legacy)  2=FLOOR_WHITE  3=FLOOR_GRAY  255=VOID`
 
-Layout persisted to `localStorage` key `pixel-office-layout`; falls back to `default-layout.json` on first load.
+- Categories: `desks`, `chairs`, `wall`, `items`
+- Live optional variant flags:
+  - `mirror`
+  - `centered`
+  - `anchorBottom`
+  - `frames`
+  - `frameW`
+  - `frameDuration`
 
-## Assets
+## Rendering Rules
 
-- `assets/Character Model.png` — 766×33 sprite strip; 4 directions × 6 frames; 16px wide / 32px tall per frame
-- `assets/furniture/<TYPE>/<VARIANT>.png` — sprites; dimensions/footprints defined in catalog.json (authoritative)
-- `assets/floor/wooden.png`, `white.png`, `gray.png` — floor tile textures (loaded by `loadAllFloorTiles`)
+- Tile size is `16px`.
+- Public scene uses fixed zoom `3.5`.
+- Editor uses integer fit zoom from `computeZoom()`.
+- All drawables are sorted by bottom-edge Y each frame.
+- `items` render above the non-item furniture beneath them.
+- `mirror: true` flips sprites horizontally at draw time.
+- `centered: true` centers sprite art within its footprint.
+- `anchorBottom: true` bottom-aligns tall sprites inside the footprint.
+- Animated furniture uses `frameIndex` + `frameTimer` derived at runtime.
+- `imageSmoothingEnabled` is always disabled for pixel rendering.
 
-## Key Conventions
+## Interaction Rules
 
-**Data structures**
-- Tile map stored flat in JSON (`tiles[r*cols+c]`), rebuilt to `tileMap[r][c]` via `buildTileMap()`
-- Placed furniture instances store only `{uid, type, variantId, col, row}`; all dimensions/sprites resolved from catalog at runtime
-- Blocked tiles: `Set<"col,row">` strings for O(1) walkability checks; rebuilt on every layout change
+### Character
+- State machine: `IDLE` → choose random walkable target → BFS path → `WALK` → `IDLE`
+- Movement is sub-tile interpolated.
+- Walk speed is `48 px/sec`.
+- Walk animation uses 6 frames per direction.
+- Wander delay is randomized between `2s` and `20s`.
 
-**Rendering**
-- All drawables Z-sorted by bottom-edge Y (painter's algorithm) each frame
-- Items (`category: "items"`) layer above desks via adjusted Z
-- Integer-only zoom via `Math.floor`; `imageSmoothingEnabled = false` for pixel-perfect output
-- Scene: continuous rAF game loop. Admin: dirty-flag (`needsRender`) RAF
+### Furniture Placement
+- `desks`: floor tiles only, except top footprint row may back against a wall
+- `chairs`: floor tiles only
+- `wall`: wall tiles only
+- `items`: no tile restriction
+- Occupancy is tracked as `Set<"col,row">` blocked tiles
+- Rotation cycles through a furniture type's catalog variants if the new footprint still fits
 
-**Placement rules by category**
-- `desks` — floor tiles only (or wall-backed top edge)
-- `chairs` — floor tiles only
-- `wall` — wall tiles only
-- `items` — no tile restriction; float above furniture
+## Tests
 
-**Naming**
-- Furniture/variant IDs: `UPPER_SNAKE_CASE` (e.g. `DESK_FRONT`, `SOFA_SIDE_MIRROR`)
-- Enums: `TileType.WALL`, `Direction.RIGHT`, `CharacterState.IDLE`
-- Functions: `camelCase`. DOM IDs/CSS classes: `kebab-case`
+- Tests are browser-only and run from `tests.html`.
+- Active suites:
+  - `tileMap.test.js`
+  - `character.test.js`
+  - `layoutStore.test.js`
+  - `portfolio.test.js`
+- Harness is `js/tests/run.js` with `assert()`, `assertEqual()`, and `getResults()`.
+- `githubPublish.test.js` is currently inactive drift: `tests.html` does not import it, and `js/githubPublish.js` does not exist.
 
-**Character AI**
-- State machine: IDLE → wander timer expires → pick random walkable tile → BFS pathfind → WALK → IDLE
-- Sub-pixel interpolation between tiles; 6 animation frames per direction at 0.15s/frame
+## Conventions
 
-**Tests**
-- 29 assertions across 3 files; run in-browser via `tests.html`
-- Harness: `js/tests/run.js` — `assert`, `assertEqual` (JSON.stringify deep-equal), `getResults`
+- Use ES modules with explicit relative imports ending in `.js`.
+- Functions are `camelCase`.
+- Enums/constants are exported from `constants.js` as frozen objects.
+- Furniture and variant IDs are `UPPER_SNAKE_CASE`.
+- DOM ids and CSS classes are kebab-case.
+- `catalog.json` is the source of truth for runtime furniture metadata; per-folder `manifest.json` files are not consumed by the app.
+- Local edit persistence key is `pixel-office-layout`.
+
+## Known Drift
+
+- `AGENTS.md` and `CLAUDE.md` may lag the code; prefer the live modules.
+- `js/tests/githubPublish.test.js` references a missing module.
+- `docs/superpowers/` describes planned/previous work and is not guaranteed to match runtime behavior.
+- Admin auth is only a client-side gate; the password is visible in source and `sessionStorage` stores the auth flag.

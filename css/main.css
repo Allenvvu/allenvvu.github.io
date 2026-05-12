@@ -50,11 +50,24 @@ a { color: inherit; }
 
 .portfolio-logo {
   color: var(--ink);
+  font: inherit;
   font-size: clamp(1rem, 2.2vw, 1.6rem);
   font-weight: 800;
   letter-spacing: 0;
   line-height: 1;
   text-shadow: 2px 2px 0 #101421;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  justify-self: start;
+  text-align: left;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.portfolio-logo:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 6px;
 }
 
 .portfolio-tabs {

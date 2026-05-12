@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pixel Office Agent Guide</title>
+  <style>
+    :root {
+      --bg: #0f1220;
+      --panel: #171b2e;
+      --ink: #f3f1e8;
+      --muted: #aab3c7;
+      --line: #2c3556;
+      --accent: #f0c75e;
+      --accent2: #7ed8c8;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 32px 18px 56px;
+      background: linear-gradient(180deg, #0b0e18 0%, var(--bg) 100%);
+      color: var(--ink);
+      font: 15px/1.55 "Courier New", Courier, monospace;
+    }
+
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    h1, h2, h3 {
+      line-height: 1.15;
+      margin: 0 0 12px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      color: var(--accent);
+    }
+
+    h2 {
+      margin-top: 28px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+      font-size: 1.15rem;
+    }
+
+    p, ul, pre, table {
+      margin: 0 0 14px;
+    }
+
+    ul {
+      padding-left: 20px;
+    }
+
+    li {
+      margin: 4px 0;
+    }
+
+    code, pre {
+      font: inherit;
+    }
+
+    code {
+      color: var(--accent2);
+    }
+
+    pre {
+      overflow: auto;
+      padding: 14px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--panel);
+      border: 1px solid var(--line);
+    }
+
+    th, td {
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--accent);
+    }
+
+    .lede {
+      color: var(--muted);
+      max-width: 72ch;
+    }
+
+    .note {
+      padding: 12px 14px;
+      background: rgba(126, 216, 200, 0.08);
+      border: 1px solid rgba(126, 216, 200, 0.24);
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Pixel Office</h1>
+    <p class="lede">Static browser app built with vanilla HTML, CSS, JSON, and ES modules. No bundler, no framework, no TypeScript, no Node runtime required.</p>
+
+    <h2>Entry Points</h2>
+    <table>
+      <thead>
+        <tr><th>Page</th><th>Boot file</th><th>Purpose</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>index.html</code></td><td><code>js/sceneMain.js</code></td><td>Public scene viewer with wandering character and portfolio overlay</td></tr>
+        <tr><td><code>admin.html</code></td><td><code>js/adminMain.js</code></td><td>Protected layout editor for tiles and furniture</td></tr>
+        <tr><td><code>tests.html</code></td><td>inline module</td><td>In-browser test harness for pure JS modules</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Directory Map</h2>
+    <pre>assets/
+  Character Model.png
+  floor/
+  furniture/
+
+css/
+  main.css
+  admin.css
+
+data/
+  catalog.json
+  default-layout.json
+  published-layout.json
+
+js/
+  constants.js
+  furnitureLoader.js
+  layoutStore.js
+  tileMap.js
+  character.js
+  renderer.js
+  gameLoop.js
+  portfolio.js
+  sceneMain.js
+  adminMain.js
+  tests/
+    run.js
+    tileMap.test.js
+    character.test.js
+    layoutStore.test.js
+    portfolio.test.js
+    githubPublish.test.js
+
+docs/superpowers/
+  plans/
+  specs/</pre>
+
+    <h2>Architecture</h2>
+    <ul>
+      <li><code>sceneMain.js</code> orchestrates the public app: loads assets and layout, creates the character, mounts the portfolio overlay, and starts the shared game loop.</li>
+      <li><code>adminMain.js</code> orchestrates the editor: auth gate, mutable state object, dirty-flag render loop, placement rules, and toolbar actions.</li>
+      <li><code>layoutStore.js</code> is the persistence layer: load order is <code>localStorage</code> then <code>published-layout.json</code> then <code>default-layout.json</code>.</li>
+      <li><code>renderer.js</code> is the canvas core: tiles first, then z-sorted furniture and character.</li>
+      <li><code>portfolio.js</code> adds room-target camera transitions and modal content on top of the scene canvas.</li>
+    </ul>
+
+    <h2>Data Contracts</h2>
+    <p><code>catalog.json</code> defines 38 furniture types, 53 variants, and 4 categories: <code>desks</code>, <code>chairs</code>, <code>wall</code>, <code>items</code>.</p>
+    <p><code>default-layout.json</code> is the blank-ish fallback. <code>published-layout.json</code> is the richer shipped room and currently contains 30 furniture placements.</p>
+    <table>
+      <thead>
+        <tr><th>Tile value</th><th>Meaning</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>0</code></td><td><code>WALL</code></td></tr>
+        <tr><td><code>1</code></td><td><code>FLOOR</code> / wooden legacy floor</td></tr>
+        <tr><td><code>2</code></td><td><code>FLOOR_WHITE</code></td></tr>
+        <tr><td><code>3</code></td><td><code>FLOOR_GRAY</code></td></tr>
+        <tr><td><code>4</code></td><td><code>FLOOR_GRAY_NOGRID</code></td></tr>
+        <tr><td><code>255</code></td><td><code>VOID</code></td></tr>
+      </tbody>
+    </table>
+
+    <h2>Rules</h2>
+    <ul>
+      <li>Tile size is <code>16px</code>.</li>
+      <li>Public scene uses fixed zoom <code>3.5</code>; editor uses integer fit zoom.</li>
+      <li>All drawables are sorted by bottom-edge Y.</li>
+      <li><code>items</code> render above the furniture beneath them.</li>
+      <li><code>mirror</code>, <code>centered</code>, <code>anchorBottom</code>, and animation metadata are handled at render time.</li>
+      <li>Blocked occupancy is tracked as <code>Set&lt;"col,row"&gt;</code>.</li>
+      <li>Furniture placement rules: desks on floor or wall-backed top edge, chairs on floor, wall items on wall, items unrestricted.</li>
+      <li>Character behavior is idle → random target → BFS path → walk → idle.</li>
+    </ul>
+
+    <h2>Tests</h2>
+    <ul>
+      <li><code>tests.html</code> runs <code>tileMap</code>, <code>character</code>, <code>layoutStore</code>, and <code>portfolio</code> suites in-browser.</li>
+      <li><code>js/tests/run.js</code> is the tiny harness with <code>assert()</code>, <code>assertEqual()</code>, and <code>getResults()</code>.</li>
+      <li><code>githubPublish.test.js</code> is drift: it imports missing <code>js/githubPublish.js</code> and is not loaded by <code>tests.html</code>.</li>
+    </ul>
+
+    <h2>Conventions</h2>
+    <ul>
+      <li>Use ES modules with explicit relative <code>.js</code> imports.</li>
+      <li>Functions are <code>camelCase</code>.</li>
+      <li>Furniture and variant IDs are <code>UPPER_SNAKE_CASE</code>.</li>
+      <li>DOM ids and CSS classes are kebab-case.</li>
+      <li><code>catalog.json</code> is the runtime source of truth; per-folder <code>manifest.json</code> files are not consumed.</li>
+      <li>Local edit persistence key is <code>pixel-office-layout</code>.</li>
+    </ul>
+
+    <h2>Known Drift</h2>
+    <div class="note">
+      <p><code>AGENTS.md</code> and <code>CLAUDE.md</code> can lag the code. <code>docs/superpowers/</code> reflects design history, not guaranteed runtime behavior. Admin auth is only a client-side gate.</p>
+    </div>
+  </main>
+</body>
+</html>
