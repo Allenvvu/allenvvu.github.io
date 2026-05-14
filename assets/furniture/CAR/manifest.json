@@ -6,7 +6,7 @@
   "canPlaceOnWalls": false,
   "canPlaceOnSurfaces": false,
   "backgroundTiles": 0,
-  "width": 48,
+  "width": 50,
   "height": 21,
   "footprintW": 3,
   "footprintH": 2

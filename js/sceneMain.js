@@ -1,9 +1,12 @@
 import { loadCatalog, loadFurnitureSprites, loadAllFloorTiles } from './furnitureLoader.js';
 import { loadLayout, buildTileMap, buildBlockedTiles, buildFurnitureInstances, updateFurnitureAnimations } from './layoutStore.js';
 import { createCharacter, updateCharacter } from './character.js';
-import { renderFrame, computeZoom } from './renderer.js';
+import { renderFrame } from './renderer.js';
 import { startGameLoop } from './gameLoop.js';
 import { getWalkableTiles } from './tileMap.js';
+import { initPortfolio } from './portfolio.js';
+
+const DEFAULT_SCENE_ZOOM = 3.5;
 
 async function main() {
   const canvas = document.getElementById('scene');
@@ -26,20 +29,34 @@ async function main() {
   let blockedTiles = buildBlockedTiles(layout.furniture, catalog);
   let furnitureInstances = buildFurnitureInstances(layout.furniture, catalog, furnitureSprites);
   let floorImgs = initialFloorImgs;
-  let zoom = computeZoom(canvas.width, canvas.height, layout.cols, layout.rows);
+  const zoom = DEFAULT_SCENE_ZOOM;
 
   const walkable = getWalkableTiles(tileMap, blockedTiles);
   const start = walkable.length > 0
     ? walkable[Math.floor(Math.random() * walkable.length)]
     : { col: 1, row: 1 };
   const character = createCharacter(start.col, start.row);
+  const portfolio = initPortfolio({
+    canvas,
+    getLayout: () => layout,
+    defaultZoom: DEFAULT_SCENE_ZOOM,
+  });
 
   startGameLoop(canvas, {
     update: (dt) => {
       updateCharacter(character, dt, tileMap, blockedTiles);
       updateFurnitureAnimations(furnitureInstances, dt);
     },
-    render: (ctx) => renderFrame(ctx, { cols: layout.cols, rows: layout.rows, tileMap }, furnitureInstances, character, charImg, zoom, floorImgs),
+    render: (ctx) => renderFrame(
+      ctx,
+      { cols: layout.cols, rows: layout.rows, tileMap },
+      furnitureInstances,
+      character,
+      charImg,
+      zoom,
+      floorImgs,
+      portfolio.getCamera(),
+    ),
   });
 
   window.addEventListener('storage', (e) => {
@@ -50,14 +67,12 @@ async function main() {
       tileMap = buildTileMap(newLayout);
       blockedTiles = buildBlockedTiles(newLayout.furniture, catalog);
       furnitureInstances = buildFurnitureInstances(newLayout.furniture, catalog, furnitureSprites);
-      zoom = computeZoom(canvas.width, canvas.height, newLayout.cols, newLayout.rows);
     } catch { /* malformed JSON — ignore */ }
   });
 
   window.addEventListener('resize', () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    zoom = computeZoom(canvas.width, canvas.height, layout.cols, layout.rows);
   });
 }
 

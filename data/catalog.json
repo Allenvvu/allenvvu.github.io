@@ -275,7 +275,7 @@
     "label": "Car",
     "category": "items",
     "variants": [
-      { "id": "CAR", "file": "assets/furniture/CAR/CAR.png", "w": 48, "h": 21, "footprintW": 3, "footprintH": 2 }
+      { "id": "CAR", "file": "assets/furniture/CAR/CAR.png", "w": 50, "h": 21, "footprintW": 3, "footprintH": 2 }
     ]
   },
   {

@@ -29,13 +29,15 @@ export function computeOffset(canvasWidth, canvasHeight, cols, rows, zoom) {
  * @param {object|null} character  null to skip character rendering
  * @param {HTMLImageElement|null} charImg
  * @param {number} zoom
+ * @param {{ offsetX: number, offsetY: number, zoom: number }|null} camera
  */
-export function renderFrame(ctx, layout, furnitureInstances, character, charImg, zoom, floorImgs = null) {
+export function renderFrame(ctx, layout, furnitureInstances, character, charImg, zoom, floorImgs = null, camera = null) {
   const { cols, rows, tileMap } = layout;
   const cw = ctx.canvas.width;
   const ch = ctx.canvas.height;
-  const { offsetX, offsetY } = computeOffset(cw, ch, cols, rows, zoom);
-  const s = TILE_SIZE * zoom;
+  const activeZoom = camera?.zoom ?? zoom;
+  const { offsetX, offsetY } = camera ?? computeOffset(cw, ch, cols, rows, activeZoom);
+  const s = TILE_SIZE * activeZoom;
 
   ctx.imageSmoothingEnabled = false;
   ctx.clearRect(0, 0, cw, ch);
@@ -77,10 +79,10 @@ export function renderFrame(ctx, layout, furnitureInstances, character, charImg,
 
   for (const f of furnitureInstances) {
     if (!f.img || !f.variant) continue;
-    const fw = Math.round(f.variant.w * zoom);
-    const fh = Math.round(f.variant.h * zoom);
-    const footprintPxW = f.variant.footprintW * TILE_SIZE * zoom;
-    const footprintPxH = f.variant.footprintH * TILE_SIZE * zoom;
+    const fw = Math.round(f.variant.w * activeZoom);
+    const fh = Math.round(f.variant.h * activeZoom);
+    const footprintPxW = f.variant.footprintW * TILE_SIZE * activeZoom;
+    const footprintPxH = f.variant.footprintH * TILE_SIZE * activeZoom;
     const drawOffX = f.variant.centered ? Math.round((footprintPxW - fw) / 2) : 0;
     const drawOffY = f.variant.centered ? Math.round((footprintPxH - fh) / 2)
                    : f.variant.anchorBottom ? Math.round(footprintPxH - fh) : 0;
@@ -132,11 +134,11 @@ export function renderFrame(ctx, layout, furnitureInstances, character, charImg,
 
   if (character && charImg) {
     const srcX = getFrameSrcX(character);
-    const drawX = Math.round(offsetX + character.x * zoom - (16 * zoom) / 2);
-    const drawY = Math.round(offsetY + character.y * zoom - 32 * zoom);
+    const drawX = Math.round(offsetX + character.x * activeZoom - (16 * activeZoom) / 2);
+    const drawY = Math.round(offsetY + character.y * activeZoom - 32 * activeZoom);
     const charZY = character.y + TILE_SIZE / 2 + 0.5;
     const cimg = charImg;
-    const czoom = zoom;
+    const czoom = activeZoom;
     const csrcX = srcX;
     drawables.push({
       zY: charZY,

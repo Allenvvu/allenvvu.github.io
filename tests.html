@@ -14,16 +14,17 @@
   <h1>Test Results</h1>
   <div id="output"></div>
   <script type="module">
-    import { getResults } from './js/tests/run.js';
-    import { runTests as tileMapTests } from './js/tests/tileMap.test.js';
-    import { runTests as characterTests } from './js/tests/character.test.js';
-    import { runTests as layoutStoreTests } from './js/tests/layoutStore.test.js';
-    import { runTests as githubPublishTests } from './js/tests/githubPublish.test.js';
+    const stamp = Date.now();
+    const { getResults } = await import('./js/tests/run.js');
+    const { runTests: tileMapTests } = await import(`./js/tests/tileMap.test.js?v=${stamp}`);
+    const { runTests: characterTests } = await import(`./js/tests/character.test.js?v=${stamp}`);
+    const { runTests: layoutStoreTests } = await import(`./js/tests/layoutStore.test.js?v=${stamp}`);
+    const { runTests: portfolioTests } = await import(`./js/tests/portfolio.test.js?v=${stamp}`);
 
     tileMapTests();
     characterTests();
     layoutStoreTests();
-    await githubPublishTests();
+    portfolioTests();
 
     const out = document.getElementById('output');
     const results = getResults();
