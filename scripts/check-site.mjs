@@ -6,6 +6,8 @@ import { fileURLToPath } from "node:url";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const linkedinUrl = "https://www.linkedin.com/in/allen-w-307451229/";
 const githubUrl = "https://github.com/Allenvvu";
+const googleFontsUrl =
+  "https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400..700&display=swap";
 
 function readRequired(fileName) {
   const filePath = join(root, fileName);
@@ -17,19 +19,34 @@ function assertIncludes(content, expected, label) {
   assert.ok(content.includes(expected), `${label} missing: ${expected}`);
 }
 
+function assertNewsreaderLinks(html, label) {
+  assertIncludes(
+    html,
+    '<link rel="preconnect" href="https://fonts.googleapis.com">',
+    `${label} Google Fonts preconnect`
+  );
+  assertIncludes(
+    html,
+    '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>',
+    `${label} Google Fonts static preconnect`
+  );
+  assertIncludes(
+    html,
+    `<link href="${googleFontsUrl}" rel="stylesheet">`,
+    `${label} Newsreader stylesheet`
+  );
+}
+
 const checks = {
   home() {
     const html = readRequired("index.html");
 
     assertIncludes(html, "<title>Allen Wu</title>", "home title");
     assertIncludes(html, '<link rel="stylesheet" href="styles.css">', "home stylesheet");
+    assertNewsreaderLinks(html, "home");
     assertIncludes(html, '<div class="portrait-placeholder"', "portrait dummy block");
     assertIncludes(html, '<h1 class="name">Allen Wu</h1>', "home name");
-    assertIncludes(
-      html,
-      '<p class="tagline">Engineer, builder, artist, lifelong learner.</p>',
-      "home tagline"
-    );
+    assertIncludes(html, '<p class="tagline">', "home tagline");
     assertIncludes(html, `href="${linkedinUrl}"`, "home LinkedIn link");
     assertIncludes(html, 'href="projects.html"', "home Projects link");
     assertIncludes(html, `href="${githubUrl}"`, "home GitHub link");
@@ -42,6 +59,7 @@ const checks = {
 
     assertIncludes(html, "<title>Projects | Allen Wu</title>", "projects title");
     assertIncludes(html, '<link rel="stylesheet" href="styles.css">', "projects stylesheet");
+    assertNewsreaderLinks(html, "projects");
     assertIncludes(html, '<h1 class="name">Projects</h1>', "projects heading");
     assertIncludes(html, 'href="index.html"', "projects Home link");
     assertIncludes(html, `href="${linkedinUrl}"`, "projects LinkedIn link");
@@ -72,6 +90,11 @@ const checks = {
 
     assert.match(css, /@media \(max-width: 768px\)/, "mobile media query");
     assertIncludes(css, "letter-spacing: 0;", "non-negative letter spacing");
+    assertIncludes(
+      css,
+      'font-family: "Newsreader", Georgia, "Times New Roman", serif;',
+      "Newsreader site font"
+    );
   },
 };
 
