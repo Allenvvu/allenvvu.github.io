@@ -46,7 +46,14 @@ const checks = {
     assertNewsreaderLinks(html, "home");
     assertIncludes(html, '<div class="portrait-placeholder"', "portrait dummy block");
     assertIncludes(html, '<h1 class="name">Allen Wu</h1>', "home name");
-    assertIncludes(html, '<p class="tagline">', "home tagline");
+    assertIncludes(
+      html,
+      '<p class="tagline" aria-label="Engineer, builder, lifelong learner">',
+      "home structured tagline"
+    );
+    assertIncludes(html, "<span>Engineer,</span>", "home tagline engineer segment");
+    assertIncludes(html, "<span>builder,</span>", "home tagline builder segment");
+    assertIncludes(html, "<span>lifelong learner</span>", "home tagline learner segment");
     assertIncludes(html, `href="${linkedinUrl}"`, "home LinkedIn link");
     assertIncludes(html, 'href="projects.html"', "home Projects link");
     assertIncludes(html, `href="${githubUrl}"`, "home GitHub link");
@@ -101,7 +108,9 @@ const checks = {
       "Source Serif 4 quote font"
     );
     assertIncludes(css, ".name {\n  margin-bottom: 12px;\n  color: #1a202c;\n  font-size: 2.65rem;", "desktop name size");
-    assertIncludes(css, ".tagline {\n  max-width: 560px;\n  margin: 0 auto 35px;\n  color: #64748b;\n  font-size: 1.08rem;", "desktop tagline size");
+    assertIncludes(css, ".tagline {\n  display: flex;\n  max-width: 560px;", "desktop tagline flex layout");
+    assertIncludes(css, "gap: 0.25rem 1.2rem;", "desktop tagline spacing");
+    assertIncludes(css, ".tagline span {\n  white-space: nowrap;\n}", "tagline segment wrapping");
     assertIncludes(css, ".social-links {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  justify-content: center;\n  gap: 8px;\n  font-size: 1rem;", "desktop link size");
     assertIncludes(css, "font-size: 1.125rem;", "desktop quote text size");
     assertIncludes(css, ".quote-author {\n  display: block;\n  color: #94a3b8;\n  font-size: 0.875rem;", "desktop quote author size");
