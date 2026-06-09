@@ -100,6 +100,14 @@ const checks = {
       'font-family: "Source Serif 4", Georgia, "Times New Roman", serif;',
       "Source Serif 4 quote font"
     );
+    assertIncludes(css, ".name {\n  margin-bottom: 12px;\n  color: #1a202c;\n  font-size: 2.65rem;", "desktop name size");
+    assertIncludes(css, ".tagline {\n  max-width: 560px;\n  margin: 0 auto 35px;\n  color: #64748b;\n  font-size: 1.08rem;", "desktop tagline size");
+    assertIncludes(css, ".social-links {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  justify-content: center;\n  gap: 8px;\n  font-size: 1rem;", "desktop link size");
+    assertIncludes(css, "font-size: 1.125rem;", "desktop quote text size");
+    assertIncludes(css, ".quote-author {\n  display: block;\n  color: #94a3b8;\n  font-size: 0.875rem;", "desktop quote author size");
+    assertIncludes(css, ".bio {\n  color: #334155;\n  font-size: 1.15rem;", "desktop bio size");
+    assertIncludes(css, ".quote-text {\n    font-size: 1.05rem;", "mobile quote text size");
+    assertIncludes(css, ".bio {\n    font-size: 1.08rem;", "mobile bio size");
   },
 };
 
