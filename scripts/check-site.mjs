@@ -7,7 +7,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const linkedinUrl = "https://www.linkedin.com/in/allen-w-307451229/";
 const githubUrl = "https://github.com/Allenvvu";
 const googleFontsUrl =
-  "https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400..700&display=swap";
+  "https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400..700&family=Source+Serif+4:ital,wght@1,400&display=swap";
 
 function readRequired(fileName) {
   const filePath = join(root, fileName);
@@ -33,7 +33,7 @@ function assertNewsreaderLinks(html, label) {
   assertIncludes(
     html,
     `<link href="${googleFontsUrl}" rel="stylesheet">`,
-    `${label} Newsreader stylesheet`
+    `${label} font stylesheet`
   );
 }
 
@@ -94,6 +94,11 @@ const checks = {
       css,
       'font-family: "Newsreader", Georgia, "Times New Roman", serif;',
       "Newsreader site font"
+    );
+    assertIncludes(
+      css,
+      'font-family: "Source Serif 4", Georgia, "Times New Roman", serif;',
+      "Source Serif 4 quote font"
     );
   },
 };
